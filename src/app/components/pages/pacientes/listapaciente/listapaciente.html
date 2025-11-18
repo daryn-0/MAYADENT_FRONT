@@ -1,0 +1,56 @@
+<p-toast></p-toast>
+
+<div class="card m-4">
+  <p-table #dt [value]="pacientes" [loading]="loading" styleClass="p-datatable-striped" [paginator]="true" [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]" [globalFilterFields]="['nombre', 'apellido', 'dni']" responsiveLayout="scroll">
+    <!-- Título y Filtro Global (Buscador) -->
+    <ng-template pTemplate="caption">
+      <div class="flex flex-column md:flex-row justify-content-between align-items-center">
+        <h3 class="m-0">PACIENTES</h3>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)?.value, 'contains')"
+            placeholder="Buscar por DNI o nombres..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <!-- Encabezados de la Tabla -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nombre" style="min-width:15rem">
+          Nombre Completo <p-sortIcon field="nombre"></p-sortIcon>
+        </th>
+        <th pSortableColumn="dni">
+          DNI <p-sortIcon field="dni"></p-sortIcon>
+        </th>
+        <th>Fecha de Nacimiento</th>
+        <th>Teléfono</th>
+        <th>Correo Electrónico</th>
+        <th>Direccion</th>
+        <th>Genero</th>
+      </tr>
+    </ng-template>
+
+    <!-- Cuerpo de la Tabla (los datos) -->
+    <ng-template pTemplate="body" let-paciente>
+      <tr>
+        <td>{{paciente.nombre}} {{paciente.apellido}}</td>
+        <td>{{paciente.dni}}</td>
+        <td>{{paciente.fecha_nacimiento}}</td>
+        <td>{{paciente.telefono}}</td>
+        <td>{{paciente.correo}}</td>
+        <td>{{paciente.direccion}}</td>
+        <td>{{paciente.genero}}</td>
+      </tr>
+    </ng-template>
+
+    <!-- Mensaje si la tabla está vacía -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <!-- Ajustamos el colspan a 4 columnas -->
+        <td colspan="4" class="text-center">No se encontraron pacientes activos.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

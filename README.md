@@ -1,59 +1,129 @@
 # Mayadent
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.5.
+Sistema de gestión de citas y tratamientos dentales desarrollado con Angular 20.
 
-## Development server
+## 📋 Requisitos Previos
 
-To start a local development server, run:
+Antes de comenzar, asegúrate de tener instalado:
+
+- [Node.js](https://nodejs.org/) (versión 18 o superior)
+- [npm](https://www.npmjs.com/) (viene incluido con Node.js)
+- [Angular CLI](https://angular.dev/tools/cli) versión 20.3.5
+
+## 🚀 Instalación
+
+1. Clona el repositorio:
+```bash
+git clone <url-del-repositorio>
+cd mayadent
+```
+
+2. Instala las dependencias:
+```bash
+npm install
+```
+
+## 💻 Desarrollo
+
+Para iniciar el servidor de desarrollo:
+
+```bash
+npm start
+```
+
+O usando Angular CLI directamente:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abre tu navegador en `http://localhost:4200/`. La aplicación se recargará automáticamente cuando modifiques los archivos.
 
-## Code scaffolding
+## 🏗️ Construcción
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Para construir el proyecto para producción:
 
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
+Los archivos compilados se guardarán en el directorio `dist/`.
 
-To build the project run:
+### Modo de desarrollo con watch:
 
 ```bash
-ng build
+npm run watch
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🖥️ Server-Side Rendering (SSR)
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Este proyecto incluye soporte para SSR. Para ejecutar la aplicación con SSR:
 
 ```bash
-ng test
+npm run serve:ssr:mayadent
 ```
 
-## Running end-to-end tests
+## 🧪 Pruebas
 
-For end-to-end (e2e) testing, run:
+Para ejecutar las pruebas unitarias:
 
 ```bash
-ng e2e
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📦 Tecnologías Principales
 
-## Additional Resources
+- **Angular** 20.3.0 - Framework principal
+- **PrimeNG** 20.2.0 - Biblioteca de componentes UI
+- **PrimeIcons** 7.0.0 - Iconos
+- **PrimeFlex** 4.0.0 - Utilidades CSS
+- **RxJS** 7.8.0 - Programación reactiva
+- **Express** 5.1.0 - Servidor para SSR
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 📁 Estructura del Proyecto
+
+```
+mayadent/
+├── src/
+│   ├── app/
+│   │   ├── components/     # Componentes de la aplicación
+│   │   ├── services/       # Servicios
+│   │   ├── models/         # Modelos de datos
+│   │   └── app.routes.ts   # Configuración de rutas
+│   ├── index.html
+│   ├── main.ts
+│   └── styles.css
+├── public/                 # Archivos estáticos
+├── angular.json           # Configuración de Angular
+├── package.json           # Dependencias del proyecto
+└── tsconfig.json          # Configuración de TypeScript
+```
+
+## 🛠️ Comandos Útiles
+
+| Comando | Descripción |
+|---------|-------------|
+| `npm start` | Inicia el servidor de desarrollo |
+| `npm run build` | Construye la aplicación para producción |
+| `npm run watch` | Construye en modo desarrollo con watch |
+| `npm test` | Ejecuta las pruebas unitarias |
+| `ng generate component <nombre>` | Genera un nuevo componente |
+| `ng generate service <nombre>` | Genera un nuevo servicio |
+
+## 📝 Notas
+
+- El proyecto usa Angular 20 con las últimas características
+- Incluye configuración de SSR para mejor rendimiento y SEO
+- Utiliza PrimeNG para una interfaz de usuario consistente y profesional
+
+## 🤝 Contribuir
+
+1. Haz fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -m 'Agrega nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto es privado.

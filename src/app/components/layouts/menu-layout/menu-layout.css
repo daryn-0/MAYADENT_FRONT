@@ -1,0 +1,156 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* El Sidebar (la barra lateral izquierda)
+   Usamos el color "Navy" de tu paleta
+*/
+.sidebar {
+  width: 250px;
+  /* CAMBIO: Usamos tu variable de color "Navy" */
+  background-color: var(--p-secondary-color, #2F4156); 
+  color: #ffffff;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.logo {
+  /* CAMBIO: Alinear a la izquierda como en tu captura */
+  text-align: left; 
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Borde sutil */
+}
+
+.logo h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+/* Navegación y links
+*/
+.sidebar nav {
+  flex-grow: 1;
+}
+
+.sidebar nav ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  margin: 0.5rem 0;
+}
+
+.sidebar nav ul li a {
+  display: flex;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  color: #adb5bd; /* Texto de link inactivo (gris claro) */
+  text-decoration: none;
+  border-radius: var(--p-border-radius, 8px); /* Usamos el borde global */
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.sidebar nav ul li a i {
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Efecto Hover */
+.sidebar nav ul li a:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+/* Estilo del link ACTIVO 
+   Usamos el color "Teal" de tu paleta
+*/
+.sidebar nav ul li.active a {
+  /* CAMBIO: Usamos tu variable de color "Teal" */
+  background-color: var(--p-primary-color, #567C8D); 
+  color: #ffffff;
+  font-weight: 600;
+  /* CAMBIO: Sombra sutil usando el color "Teal" */
+  box-shadow: 0 4px 10px rgba(86, 124, 141, 0.3); 
+}
+
+
+/* ==========================================
+  Contenido Principal (Derecha)
+  ==========================================
+*/
+
+.main {
+  flex-grow: 1;
+  margin-left: 250px; /* MISMO ANCHO que el .sidebar */
+  display: flex;
+  flex-direction: column;
+  /* CAMBIO: Usamos tu variable "Beige" para el fondo */
+  background-color: var(--p-surface-ground, #F5EFEB); 
+}
+
+/* Barra superior (Topbar)
+*/
+.topbar {
+  /* CAMBIO: Usamos tu variable "Navy", igual que el sidebar */
+  background-color: var(--p-secondary-color, #2F4156);
+  
+  /* CAMBIO: Padding ajustado para alinear altura con el logo.
+    (1.5rem arriba, 1rem abajo) 
+  */
+  padding: 1.5rem 2rem 1rem 2rem;
+  
+  /* CAMBIO: Borde sutil para separar del contenido */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  
+  /* CAMBIO: Devolver "Admin" a la derecha */
+  justify-content: flex-end; 
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+/* Quitamos el H3 que tenías en el HTML */
+.topbar h3 {
+  display: none; 
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  /* CAMBIO: Texto del admin en gris claro */
+  color: #adb5bd; 
+  font-weight: 500;
+}
+
+.user-section i {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+  /* CAMBIO: Icono de admin en blanco */
+  color: #ffffff; 
+}
+
+/* El <router-outlet>
+*/
+.content {
+  padding: 2rem;
+  flex-grow: 1;
+}

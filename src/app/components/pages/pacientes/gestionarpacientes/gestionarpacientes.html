@@ -1,0 +1,226 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
+
+<!-- 
+  ==========================================
+  FUNCIONALIDAD EXISTENTE: BÚSQUEDA POR DNI
+  ==========================================
+-->
+<p-card header="Gestión de Pacientes por DNI" styleClass="p-card-shadow border-round-lg">
+  <div class="grid p-fluid">
+    <!-- Input para DNI -->
+    <div class="col-12 md:col-6">
+      <p-floatlabel>
+        <input 
+          id="dniABuscar" 
+          pInputText 
+          [(ngModel)]="dniABuscar" 
+          name="dniABuscar"
+          maxlength="8" 
+          type="tel"
+          pattern="[0-9]*"
+          required
+          class="w-full"
+          (keyup.enter)="buscarPorDni()" />
+        <label for="dniABuscar">Ingrese 8 dígitos del DNI...</label>
+      </p-floatlabel>
+    </div>
+    
+    <!-- Botón de Búsqueda -->
+    <div class="col-12 md:col-3">
+      <button pButton pRipple label="Buscar" icon="pi pi-search" class="p-button-primary w-full" (click)="buscarPorDni()"></button>
+    </div>
+    <!-- Botón de Limpiar -->
+    <div class="col-12 md:col-3">
+      <button pButton pRipple label="Limpiar" icon="pi pi-times" class="p-button-outlined p-button-secondary w-full" (click)="resetBusqueda()"></button>
+    </div>
+  </div>
+
+  <!-- 
+    ==========================================
+    RESULTADOS DE LA BÚSQUEDA (Condicional)
+    ==========================================
+  -->
+  <div *ngIf="pacienteEncontrado" class="mt-5 border-top-1 border-gray-200 pt-4">
+    
+    <div class="flex flex-column md:flex-row justify-content-between align-items-start">
+      <!-- Datos del Paciente Encontrado -->
+      <div>
+        <h4 class="mb-1">{{pacienteEncontrado.nombre}} {{pacienteEncontrado.apellido}}</h4>
+        <p class="text-gray-600 m-0">DNI: {{pacienteEncontrado.dni}} | Estado: {{pacienteEncontrado.estado}}</p>
+        <p class="text-gray-600 m-0">Tel: {{pacienteEncontrado.telefono}} | Correo: {{pacienteEncontrado.correo}}</p>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="flex flex-column sm:flex-row gap-2 mt-3 md:mt-0">
+        <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-info" (click)="abrirDialogEditar()"></button>
+        
+        <button pButton pRipple 
+          [label]="pacienteEncontrado.estado === 'Activo' ? 'Inactivar' : 'Activar'" 
+          [icon]="pacienteEncontrado.estado === 'Activo' ? 'pi pi-eye-slash' : 'pi pi-eye'" 
+          [ngClass]="pacienteEncontrado.estado === 'Activo' ? 'p-button-warning' : 'p-button-success'"
+          (click)="cambiarEstado()">
+        </button>
+
+        <button pButton pRipple label="Borrar" icon="pi pi-trash" class="p-button-danger" (click)="borrarPaciente()"></button>
+      </div>
+    </div>
+  </div>
+</p-card>
+
+
+<!-- 
+  ==========================================
+  NUEVA TABLA DE RESUMEN
+  ==========================================
+-->
+<p-card header="Lista General de Pacientes" styleClass="mt-4 p-card-shadow border-round-lg">
+  <p-table 
+      #dt 
+      [value]="listaTodosPacientes" 
+      [rows]="10" 
+      [paginator]="true" 
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [globalFilterFields]="['nombre', 'apellido', 'dni']"
+      responsiveLayout="scroll"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} pacientes"
+      [showCurrentPageReport]="true">
+
+      <!-- Cabecera de la tabla (con el filtro global) -->
+      <ng-template pTemplate="caption">
+          <div class="flex align-items-center justify-content-between">
+              <h5 class="m-0">Resumen de Pacientes</h5>
+              <span class="p-input-icon-left">
+                  <i class="pi pi-search"></i>
+                  <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
+              </span>
+          </div>
+      </ng-template>
+
+      <!-- Columnas de la tabla -->
+      <ng-template pTemplate="header">
+          <tr>
+              <th pSortableColumn="nombre">Nombre Completo <p-sortIcon field="nombre"></p-sortIcon></th>
+              <th pSortableColumn="dni">DNI <p-sortIcon field="dni"></p-sortIcon></th>
+              <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+          </tr>
+      </ng-template>
+
+      <!-- Cuerpo de la tabla -->
+      <ng-template pTemplate="body" let-paciente>
+          <tr>
+              <td>{{paciente.nombre}} {{paciente.apellido}}</td>
+              <td>{{paciente.dni}}</td>
+              <td>
+                <p-tag [value]="paciente.estado" [severity]="getSeverityForEstado(paciente.estado)"></p-tag>
+              </td>
+          </tr>
+      </ng-template>
+
+      <!-- Mensaje de tabla vacía -->
+      <ng-template pTemplate="emptymessage">
+          <tr>
+              <td colspan="3" class="text-center">No se encontraron pacientes.</td>
+          </tr>
+      </ng-template>
+  </p-table>
+</p-card>
+
+
+<!-- 
+  ==========================================
+  DIÁLOGO DE EDICIÓN (Funcionalidad existente)
+  ==========================================
+-->
+<p-dialog 
+  header="Editar Paciente" 
+  [(visible)]="displayEditDialog" 
+  [modal]="true" 
+  [style]="{width: '600px'}" 
+  [draggable]="false" 
+  [resizable]="false">
+
+  <!-- Formulario -->
+  <form #editForm="ngForm" (ngSubmit)="guardarCambios()">
+    <div class="p-fluid grid gap-3">
+
+      <!-- Nombre y Apellido -->
+      <div class="col-12 md:col-6">
+        <p-floatlabel>
+          <input id="edit-nombre" pInputText [(ngModel)]="pacienteParaEditar.nombre" name="nombre" required />
+          <label for="edit-nombre">Nombres</label>
+        </p-floatlabel>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-floatlabel>
+          <input id="edit-apellido" pInputText [(ngModel)]="pacienteParaEditar.apellido" name="apellido" required />
+          <label for="edit-apellido">Apellidos</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- DNI y Teléfono -->
+      <div class="col-12 md:col-6">
+        <p-floatlabel>
+          <input id="edit-dni" pInputText [(ngModel)]="pacienteParaEditar.dni" name="dni" required minlength="8" maxlength="8" />
+          <label for="edit-dni">DNI</label>
+        </p-floatlabel>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-floatlabel>
+          <input id="edit-telefono" pInputText [(ngModel)]="pacienteParaEditar.telefono" name="telefono" required minlength="9" maxlength="9" />
+          <label for="edit-telefono">Teléfono</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- Correo y Dirección -->
+      <div class="col-12">
+        <p-floatlabel>
+          <input id="edit-correo" pInputText type="email" [(ngModel)]="pacienteParaEditar.correo" name="correo" required email />
+          <label for="edit-correo">Correo electrónico</label>
+        </p-floatlabel>
+      </div>
+      <div class="col-12">
+        <p-floatlabel>
+          <input id="edit-direccion" pInputText [(ngModel)]="pacienteParaEditar.direccion" name="direccion" />
+          <label for="edit-direccion">Dirección</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- Fecha de Nacimiento -->
+      <div class="col-12 md:col-6">
+        <p-floatlabel>
+          <p-datepicker [(ngModel)]="pacienteParaEditar.fecha_nacimiento" inputId="edit-fechaNacimiento" name="fechaNacimiento" showIcon iconDisplay="input" [readonlyInput]="true"></p-datepicker>
+          <label for="edit-fechaNacimiento">Fecha de Nacimiento</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- Género -->
+      <div class="col-12 md:col-6">
+        <label class="mb-2 d-block">Género</label>
+        <div class="flex flex-wrap gap-3">
+          <div *ngFor="let g of generos" class="flex align-items-center">
+            <p-radiobutton 
+              [name]="'edit-genero'" 
+              [value]="g.value" 
+              [(ngModel)]="pacienteParaEditar.genero" 
+              [inputId]="g.value">
+            </p-radiobutton>
+            <label [for]="g.value" class="ml-2">{{g.label}}</label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  
+    <!-- Botones del Footer del Diálogo -->
+    <!-- Este bloque va FUERA del <form> si el (ngSubmit) está en el <form> -->
+    <!-- O el <form> envuelve todo el dialog, y los botones son type="submit" -->
+    <!-- Para simpleza, dejemos el (ngSubmit) en el <form> y los botones fuera -->
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayEditDialog = false"></button>
+    <button pButton pRipple label="Guardar Cambios" icon="pi pi-check" [disabled]="!editForm.form.valid" (click)="guardarCambios()"></button>
+  </ng-template>
+
+</p-dialog>

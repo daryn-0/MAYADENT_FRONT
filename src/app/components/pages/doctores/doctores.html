@@ -1,0 +1,137 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<p-card header="Gestión de Doctores">
+  <!-- Barra de herramientas con el botón "Añadir" -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="start">
+      <button pButton pRipple label="Añadir Doctor" icon="pi pi-plus" class="p-button-success" (click)="abrirDialogNuevo()"></button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Tabla de Doctores -->
+  <p-table 
+    [value]="doctores" 
+    styleClass="p-datatable-striped" 
+    [rows]="5" 
+    [paginator]="true"
+    [globalFilterFields]="['nombre','apellido','correo']"
+    selectionMode="single" 
+    [(selection)]="selectedDoctor" 
+    (onRowSelect)="onRowSelect($event)"
+    dataKey="id"
+    [tableStyle]="{'min-width': '50rem'}"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <!-- Columna ID eliminada -->
+        <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+        <th pSortableColumn="apellido">Apellido <p-sortIcon field="apellido"></p-sortIcon></th>
+        <th>Teléfono</th>
+        <th>Correo</th>
+        <th pSortableColumn="estado" style="width:15%">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-doctor>
+      <tr [pSelectableRow]="doctor">
+        <!-- Columna ID eliminada -->
+        <td>{{doctor.nombre}}</td>
+        <td>{{doctor.apellido}}</td>
+        <td>{{doctor.telefono}}</td>
+        <td>{{doctor.correo}}</td>
+        <td>
+          <p-tag [value]="doctor.estado" [severity]="getSeverityForEstado(doctor.estado)"></p-tag>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <!-- Colspan actualizado a 5 -->
+        <td colspan="5" class="text-center">No se encontraron doctores.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+
+<!-- 
+  ======================================================
+  DIÁLOGO 1: SELECCIÓN DE ACCIONES (Al hacer clic en fila)
+  ======================================================
+-->
+<p-dialog 
+  header="Acciones para: {{selectedDoctor?.nombre}} {{selectedDoctor?.apellido}}" 
+  [(visible)]="displayAccionesDialog" 
+  [modal]="true" 
+  [style]="{width: '450px'}"
+  (onHide)="onAccionesDialogHide()">
+  
+  <div class="flex flex-column gap-3 mt-3">
+    <button pButton pRipple label="Editar Datos del Doctor" icon="pi pi-pencil" class="p-button-info w-full" (click)="abrirDialogEditar()"></button>
+    <button pButton pRipple label="Cambiar Estado (Activo/Inactivo)" icon="pi pi-sync" class="p-button-warning w-full" (click)="confirmarCambioEstado()"></button>
+    <button pButton pRipple label="Eliminar Doctor (Permanente)" icon="pi pi-trash" class="p-button-danger w-full" (click)="confirmarEliminar()"></button>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayAccionesDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+
+<!-- 
+  ======================================================
+  DIÁLOGO 2: FORMULARIO (Para Añadir o Editar)
+  ======================================================
+-->
+<p-dialog 
+  [header]="esNuevoDoctor ? 'Registrar Nuevo Doctor' : 'Editar Doctor'" 
+  [(visible)]="displayFormDialog" 
+  [modal]="true" 
+  [style]="{width: '500px'}">
+  
+  <form #doctorForm="ngForm" class="p-fluid">
+    <div class="card flex flex-column gap-5 justify-center pt-4">
+      
+      <p-floatlabel class="w-full">
+        <input id="nombre" pInputText [(ngModel)]="doctorParaForm.nombre" name="nombre" class="w-full" required />
+        <label for="nombre">Nombres</label>
+      </p-floatlabel>
+      
+      <p-floatlabel class="w-full">
+        <input id="apellido" pInputText [(ngModel)]="doctorParaForm.apellido" name="apellido" class="w-full" required />
+        <label for="apellido">Apellidos</label>
+      </p-floatlabel>
+      
+      <p-floatlabel class="w-full">
+        <input id="correo" pInputText type="email" [(ngModel)]="doctorParaForm.correo" name="correo" class="w-full" email />
+        <label for="correo">Correo electrónico</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full">
+        <input id="telefono" pInputText [(ngModel)]="doctorParaForm.telefono" name="telefono" class="w-full" required minlength="9" maxlength="9" />
+        <label for="telefono">Teléfono (9 dígitos)</label>
+      </p-floatlabel>
+
+      <!-- Campo de Estado (Solo visible si estamos EDITANDO) -->
+      <div *ngIf="!esNuevoDoctor" class="flex flex-wrap gap-4 items-center justify-center md:justify-start pt-2">
+        <span class="text-lg">Estado:</span>
+        <div class="flex items-center">
+            <p-radiobutton name="estado" value="Activo" [(ngModel)]="doctorParaForm.estado" inputId="estadoActivo" />
+            <label for="estadoActivo" class="ml-2">Activo</label>
+        </div>
+        <div class="flex items-center">
+            <p-radiobutton name="estado" value="Inactivo" [(ngModel)]="doctorParaForm.estado" inputId="estadoInactivo" />
+            <label for="estadoInactivo" class="ml-2">Inactivo</label>
+        </div>
+      </div>
+
+    </div>
+  </form>
+  
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayFormDialog = false"></button>
+    <button pButton pRipple [label]="esNuevoDoctor ? 'Registrar' : 'Guardar Cambios'" icon="pi pi-check" 
+            (click)="guardarDoctor()" [disabled]="!doctorForm.form.valid"></button>
+  </ng-template>
+    
+</p-dialog>

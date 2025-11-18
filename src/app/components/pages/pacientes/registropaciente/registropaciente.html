@@ -1,0 +1,70 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="flex justify-content-center mt-4">
+    <p-card header="REGISTRAR NUEVO PACIENTE" class="p-m-4 p-p-4 w-full md:w-6 lg:w-4">
+
+        <form #pacienteForm="ngForm" (ngSubmit)="onSubmit()" class="p-fluid">
+            <div class="card flex flex-column gap-5 justify-center pt-4">
+
+                <p-floatlabel class="w-full">
+                    <input id="nombre" pInputText [(ngModel)]="paciente.nombre" name="nombre" class="w-full" required />
+                    <label for="nombre">Nombres</label>
+                </p-floatlabel>
+                <p-floatlabel class="w-full">
+                    <input id="apellido" pInputText [(ngModel)]="paciente.apellido" name="apellido" class="w-full"
+                        required />
+                    <label for="apellido">Apellidos</label>
+                </p-floatlabel>
+                <p-floatlabel class="w-full">
+                    <input id="correo" pInputText type="email" [(ngModel)]="paciente.correo" name="correo" class="w-full" required email />
+                    <label for="correo">Correo electronico</label>
+                </p-floatlabel>
+
+                <div class="flex flex-col md:flex-row gap-5 justify-center">
+                    <p-floatlabel class="w-full">
+                        <input id="telefono" pInputText [(ngModel)]="paciente.telefono" name="telefono" class="w-full"
+                            required minlength="9" maxlength="9" />
+                        <label for="telefono">Teléfono +51 (9 dígitos)</label>
+                    </p-floatlabel>
+                    <p-floatlabel class="w-full">
+                        <input id="dni" pInputText [(ngModel)]="paciente.dni" name="dni" class="w-full" required
+                            minlength="8" maxlength="8" />
+                        <label for="dni">DNI (8 dígitos)</label>
+                    </p-floatlabel>
+                </div>
+
+                <p-floatlabel class="w-full">
+                    <input id="direccion" pInputText [(ngModel)]="paciente.direccion" name="direccion" class="w-full"
+                        required />
+                    <label for="direccion">Direccion</label>
+                </p-floatlabel>
+
+                <div class="flex flex-col md:flex-row gap-8 justify-center">
+                    <p-floatlabel>
+                        <p-datepicker [(ngModel)]="paciente.fecha_nacimiento" inputId="fechaNacimiento"
+                            name="fechaNacimiento" showIcon iconDisplay="input" [readonlyInput]="true">
+                        </p-datepicker>
+                        <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                    </p-floatlabel>
+
+                    <div class="flex flex-wrap md:w-1/2 gap-4 items-center justify-center md:justify-start pt-2">
+                        <div class="flex items-center">
+                            <p-radiobutton name="genero" value="Masculino" [(ngModel)]="paciente.genero"
+                                inputId="masculino" />
+                            <label for="masculino" class="ml-2">Masculino</label>
+                        </div>
+                        <div class="flex items-center">
+                            <p-radiobutton name="genero" value="Femenino" [(ngModel)]="paciente.genero"
+                                inputId="femenino" />
+                            <label for="femenino" class="ml-2">Femenino</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-content-center mt-4">
+                    <button pButton type="submit" label="Registrar Paciente" [disabled]="!pacienteForm.form.valid"
+                        class="p-button-success w-full md:w-1/2"></button>
+                </div>
+            </div>
+        </form>
+    </p-card>
+</div>
