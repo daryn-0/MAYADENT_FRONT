@@ -3,15 +3,34 @@
 
 <p-card header="Gestión de Citas">
   
+  <!-- Filtro de estado -->
+  <div class="mb-4">
+    <div class="flex align-items-center gap-3">
+      <label for="filtroEstado" class="font-semibold">Mostrar:</label>
+      <p-select 
+        id="filtroEstado"
+        [options]="opcionesFiltroEstado" 
+        [(ngModel)]="filtroEstadoCita" 
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="onFiltroEstadoChange()"
+        class="w-auto">
+      </p-select>
+      <span class="text-sm text-gray-600">
+        ({{citasFiltradas.length}} de {{todasLasCitas.length}} citas)
+      </span>
+    </div>
+  </div>
+  
   <!-- Tabla de Citas -->
   <p-table 
     #dt
-    [value]="citasActivas" 
+    [value]="citasFiltradas" 
     styleClass="p-datatable-striped" 
     [rows]="10" 
     [paginator]="true"
     [rowsPerPageOptions]="[10, 25, 50]"
-    [globalFilterFields]="['fecha_cita','paciente.nombre','paciente.apellido','estadoCita.nombre']"
+    [globalFilterFields]="['fecha_cita','paciente.nombre','paciente.apellido','estadoCita.nombre','estado']"
     selectionMode="single" 
     [(selection)]="selectedCita" 
     (onRowSelect)="onRowSelect($event)"
@@ -22,7 +41,11 @@
     
     <ng-template pTemplate="caption">
       <div class="flex align-items-center justify-content-between">
-        <h5 class="m-0">Citas Activas</h5>
+        <h5 class="m-0">
+          <span *ngIf="filtroEstadoCita === 'todas'">Todas las Citas</span>
+          <span *ngIf="filtroEstadoCita === 'activo'">Citas Activas</span>
+          <span *ngIf="filtroEstadoCita === 'inactivo'">Citas Inactivas</span>
+        </h5>
         <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
           <input 
@@ -45,7 +68,7 @@
         <th pSortableColumn="paciente.nombre" style="width:22%">
           Paciente <p-sortIcon field="paciente.nombre"></p-sortIcon>
         </th>
-        <th style="width:25%">Descripción</th>
+        <th style="width:25%">Doctor(es)</th>
         <th pSortableColumn="estadoCita.nombre" style="width:15%">
           Estado Cita <p-sortIcon field="estadoCita.nombre"></p-sortIcon>
         </th>
@@ -66,7 +89,7 @@
           </div>
         </td>
         <td>
-          <span class="text-sm">{{cita.descripcion || 'Sin descripción'}}</span>
+          <span class="text-sm">{{obtenerDoctoresDeCita(cita)}}</span>
         </td>
         <td>
           <p-tag 
@@ -85,7 +108,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="text-center">No se encontraron citas activas</td>
+        <td colspan="6" class="text-center">No se encontraron citas</td>
       </tr>
     </ng-template>
   </p-table>
@@ -283,11 +306,11 @@
     </p>
   </div>
 
-  <div class="flex flex-column gap-2">
+  <div *ngIf="obtenerEstadosPermitidos().length > 0" class="flex flex-column gap-2">
     <label for="nuevoEstadoCita">Nuevo Estado *</label>
     <p-select 
       id="nuevoEstadoCita"
-      [options]="estadosCita" 
+      [options]="obtenerEstadosPermitidos()" 
       [(ngModel)]="estadoCitaSeleccionado" 
       name="nuevoEstadoCita"
       placeholder="Seleccione un estado"
@@ -310,6 +333,15 @@
           </p-tag>
         </ng-template>
     </p-select>
+  </div>
+
+  <div *ngIf="obtenerEstadosPermitidos().length === 0" class="p-3 bg-yellow-50 border-round">
+    <div class="flex align-items-center gap-2">
+      <i class="pi pi-info-circle text-yellow-600"></i>
+      <span class="text-yellow-800">
+        El estado "{{citaParaCambiarEstado?.estadoCita?.nombre}}" es final y no puede ser modificado.
+      </span>
+    </div>
   </div>
   
   <ng-template pTemplate="footer">
@@ -339,15 +371,16 @@
   header="Gestionar Tratamientos de la Cita" 
   [(visible)]="displayTratamientosDialog" 
   [modal]="true" 
-  [style]="{width: '800px'}">
+  [style]="{width: '800px'}"
+  (onHide)="onTratamientosDialogHide()">
   
-  <div *ngIf="selectedCita" class="mb-4">
+  <div *ngIf="citaParaTratamientos" class="mb-4">
     <div class="grid">
       <div class="col-6">
-        <strong>Fecha:</strong> {{formatearFechaDisplay(selectedCita.fecha_cita)}} - {{selectedCita.hora_cita}}
+        <strong>Fecha:</strong> {{formatearFechaDisplay(citaParaTratamientos.fecha_cita)}} - {{citaParaTratamientos.hora_cita}}
       </div>
       <div class="col-6">
-        <strong>Paciente:</strong> {{selectedCita.paciente?.nombre}} {{selectedCita.paciente?.apellido}}
+        <strong>Paciente:</strong> {{citaParaTratamientos.paciente?.nombre}} {{citaParaTratamientos.paciente?.apellido}}
       </div>
     </div>
   </div>
@@ -372,6 +405,7 @@
             dataKey="id"
             class="w-full"
             appendTo="body"
+            [disabled]="tratamientosCita.length >= 3"
             (onChange)="onTratamientoSeleccionado($event)">
               <ng-template pTemplate="selectedItem">
                 <div *ngIf="nuevoTratamiento">
@@ -410,6 +444,7 @@
           label="Agregar" 
           icon="pi pi-plus" 
           class="p-button-success w-full"
+          [disabled]="tratamientosCita.length >= 3"
           (click)="agregarTratamientoCita()">
         </button>
       </div>
@@ -444,6 +479,7 @@
             class="p-button-rounded p-button-danger p-button-text"
             pTooltip="Eliminar"
             tooltipPosition="top"
+            [disabled]="tratamientosCita.length <= 1"
             (click)="eliminarTratamientoCita(ct)">
           </button>
         </td>

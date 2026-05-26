@@ -1,0 +1,91 @@
+<p-toast></p-toast>
+
+<p-card header="Lista de Inventario">
+  
+  <p-toolbar class="mb-4">
+    <ng-template pTemplate="left">
+      <button pButton pRipple label="Registrar Inventario" icon="pi pi-plus" class="p-button-success mr-2" (click)="irARegistro()"></button>
+      <button pButton pRipple label="Gestionar Inventario" icon="pi pi-cog" class="p-button-info" (click)="irAGestion()"></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table 
+    #dt
+    [value]="inventariosActivos" 
+    styleClass="p-datatable-striped" 
+    [rows]="10" 
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['nombre','descripcion','unidad_medida']"
+    dataKey="id"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} items"
+    [showCurrentPageReport]="true">
+    
+    <ng-template pTemplate="caption">
+      <div class="flex align-items-center justify-content-between">
+        <h5 class="m-0">Inventario Activo</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            (input)="$any($event.target) && dt.filterGlobal($any($event.target).value, 'contains')" 
+            placeholder="Buscar..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nombre" style="width:20%">
+          Nombre <p-sortIcon field="nombre"></p-sortIcon>
+        </th>
+        <th style="width:25%">Descripción</th>
+        <th pSortableColumn="cantidad" style="width:10%">
+          Stock <p-sortIcon field="cantidad"></p-sortIcon>
+        </th>
+        <th pSortableColumn="unidad_medida" style="width:12%">
+          Unidad <p-sortIcon field="unidad_medida"></p-sortIcon>
+        </th>
+        <th pSortableColumn="costo_unitario" style="width:12%">
+          Costo <p-sortIcon field="costo_unitario"></p-sortIcon>
+        </th>
+        <th pSortableColumn="fecha_vencimiento" style="width:13%">
+          Vencimiento <p-sortIcon field="fecha_vencimiento"></p-sortIcon>
+        </th>
+        <th pSortableColumn="estado" style="width:8%">
+          Estado <p-sortIcon field="estado"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td><span class="font-semibold">{{item.nombre}}</span></td>
+        <td><span class="text-sm">{{item.descripcion || 'Sin descripción'}}</span></td>
+        <td>
+          <p-tag 
+            [value]="item.cantidad.toString()" 
+            [severity]="getSeverityStock(item.cantidad)">
+          </p-tag>
+        </td>
+        <td>{{item.unidad_medida}}</td>
+        <td>S/ {{item.costo_unitario | number:'1.2-2'}}</td>
+        <td>{{formatearFecha(item.fecha_vencimiento)}}</td>
+        <td>
+          <p-tag 
+            [value]="item.estado" 
+            [severity]="item.estado === 'Activo' ? 'success' : 'danger'">
+          </p-tag>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">No se encontraron items en el inventario</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</p-card>

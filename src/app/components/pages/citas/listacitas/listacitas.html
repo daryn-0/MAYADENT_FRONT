@@ -25,23 +25,45 @@
       </ng-template>
     </p-toolbar>
 
+    <!-- Filtros -->
+    <div class="mb-4">
+      <div class="flex align-items-center gap-3 flex-wrap">
+        <label for="filtroDoctor" class="font-semibold">Filtrar por Doctor:</label>
+        <p-select 
+          id="filtroDoctor"
+          [options]="opcionesFiltroDoctor" 
+          [(ngModel)]="filtroDoctor" 
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onFiltroDoctorChange()"
+          class="w-auto min-w-[200px]">
+        </p-select>
+        <span class="text-sm text-gray-600">
+          ({{citasFiltradas.length}} de {{citasActivas.length}} citas)
+        </span>
+      </div>
+    </div>
+
     <!-- Tabla de Citas -->
     <p-table 
       #dt
-      [value]="citasActivas" 
+      [value]="citasFiltradas" 
       styleClass="p-datatable-striped" 
       [rows]="10" 
       [paginator]="true"
       [rowsPerPageOptions]="[10, 25, 50]"
       [globalFilterFields]="['fecha_cita','paciente.nombre','paciente.apellido','paciente.dni','estadoCita.nombre']"
       dataKey="id"
-      [tableStyle]="{'min-width': '75rem'}"
+      [tableStyle]="{'min-width': '90rem'}"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} citas"
       [showCurrentPageReport]="true">
       
       <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
-          <h5 class="m-0">Citas Activas</h5>
+          <h5 class="m-0">
+            <span *ngIf="filtroDoctor === 'todos'">Todas las Citas Activas</span>
+            <span *ngIf="filtroDoctor !== 'todos'">Citas del {{obtenerEtiquetaFiltroDoctor()}}</span>
+          </h5>
           <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
             <input 
@@ -55,20 +77,21 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="fecha_cita" style="width:15%">
+          <th pSortableColumn="fecha_cita" style="width:12%">
             Fecha <p-sortIcon field="fecha_cita"></p-sortIcon>
           </th>
-          <th pSortableColumn="hora_cita" style="width:12%">
+          <th pSortableColumn="hora_cita" style="width:10%">
             Hora <p-sortIcon field="hora_cita"></p-sortIcon>
           </th>
-          <th pSortableColumn="paciente.nombre" style="width:25%">
+          <th pSortableColumn="paciente.nombre" style="width:20%">
             Paciente <p-sortIcon field="paciente.nombre"></p-sortIcon>
           </th>
-          <th style="width:30%">Descripción</th>
-          <th pSortableColumn="estadoCita.nombre" style="width:13%">
+          <th style="width:20%">Doctor(es)</th>
+          <th style="width:25%">Descripción</th>
+          <th pSortableColumn="estadoCita.nombre" style="width:10%">
             Estado <p-sortIcon field="estadoCita.nombre"></p-sortIcon>
           </th>
-          <th style="width:5%">Acciones</th>
+          <th style="width:3%">Acciones</th>
         </tr>
       </ng-template>
 
@@ -80,6 +103,11 @@
             <div class="flex flex-column">
               <span class="font-semibold">{{cita.paciente?.nombre}} {{cita.paciente?.apellido}}</span>
               <span class="text-sm text-gray-600">DNI: {{cita.paciente?.dni}}</span>
+            </div>
+          </td>
+          <td>
+            <div class="flex flex-column">
+              <span class="text-sm font-medium">{{obtenerDoctoresDeCita(cita)}}</span>
             </div>
           </td>
           <td>
@@ -107,10 +135,13 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6" class="text-center">
+          <td colspan="7" class="text-center">
             <div class="flex flex-column align-items-center gap-3 py-5">
               <i class="pi pi-calendar-times" style="font-size: 3rem; color: var(--text-color-secondary)"></i>
               <span class="text-xl">No se encontraron citas activas</span>
+              <span *ngIf="filtroDoctor !== 'todos'" class="text-sm text-gray-600">
+                Con el filtro de doctor seleccionado
+              </span>
               <button 
                 pButton 
                 label="Registrar Primera Cita" 

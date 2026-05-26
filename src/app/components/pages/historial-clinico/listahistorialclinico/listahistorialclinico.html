@@ -1,0 +1,54 @@
+<p-toast></p-toast>
+
+<p-card header="Listado de Historiales Clínicos" styleClass="p-card-shadow border-round-lg">
+  <p-table
+    #dt
+    [value]="historiales"
+    [loading]="loading"
+    styleClass="p-datatable-striped"
+    [rows]="10"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['paciente.nombre','paciente.apellido','paciente.dni','cita.paciente.nombre','cita.paciente.apellido','cita.paciente.dni','estado']"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} historiales"
+    [showCurrentPageReport]="true">
+
+    <ng-template pTemplate="caption">
+      <div class="flex align-items-center justify-content-between">
+        <h5 class="m-0">Historiales Clínicos Activos</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="$any($event.target) && dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="fecha_emision">Fecha Emisión <p-sortIcon field="fecha_emision"></p-sortIcon></th>
+        <th>Paciente</th>
+        <th>DNI</th>
+        <th>Fecha Cita</th>
+        <th class="text-right">Monto Total</th>
+        <th>Estado</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-historial>
+      <tr>
+        <td>{{formatearFecha(historial.fecha_emision)}}</td>
+        <td>{{obtenerPaciente(historial)}}</td>
+        <td>{{obtenerDni(historial)}}</td>
+        <td>{{obtenerFechaCita(historial)}}</td>
+        <td class="text-right">S/ {{historial.monto_total | number:'1.2-2'}}</td>
+        <td><p-tag [value]="historial.estado" [severity]="historial.estado === 'Activo' ? 'success' : 'danger'"></p-tag></td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center">No se encontraron historiales clínicos</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

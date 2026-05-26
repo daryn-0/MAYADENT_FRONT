@@ -13,6 +13,13 @@ import { CitasLayout } from './components/layouts/citas-layout/citas-layout';
 import { Registrocitas } from './components/pages/citas/registrocitas/registrocitas';
 import { Listacitas } from './components/pages/citas/listacitas/listacitas';
 import { Gestionarcitas } from './components/pages/citas/gestionarcitas/gestionarcitas';
+import { Listainventario } from './components/pages/inventario/listainventario/listainventario';
+import { Registroinventario } from './components/pages/inventario/registroinventario/registroinventario';
+import { Gestionarinventario } from './components/pages/inventario/gestionarinventario/gestionarinventario';
+import { Calendariocitas } from './components/pages/citas/calendariocitas/calendariocitas';
+import { HistorialClinicoLayout } from './components/layouts/historial-clinico-layout/historial-clinico-layout';
+import { Listahistorialclinico } from './components/pages/historial-clinico/listahistorialclinico/listahistorialclinico';
+import { Gestionarhistorialclinico } from './components/pages/historial-clinico/gestionarhistorialclinico/gestionarhistorialclinico';
 
 export const routes: Routes = [
     {
@@ -53,7 +60,26 @@ export const routes: Routes = [
                     { path: '', redirectTo: 'lista', pathMatch: 'full' },
                     { path: 'registro', component: Registrocitas },
                     { path: 'lista', component: Listacitas },
-                    { path: 'gestion', component: Gestionarcitas }
+                    { path: 'gestion', component: Gestionarcitas },
+                    { path: 'calendario', component: Calendariocitas }
+                ]
+            },
+            {
+                path: 'historial-clinico',
+                component: HistorialClinicoLayout,
+                children: [
+                    { path: '', redirectTo: 'lista', pathMatch: 'full' },
+                    { path: 'lista', component: Listahistorialclinico },
+                    { path: 'gestion', component: Gestionarhistorialclinico }
+                ]
+            },
+            {
+                path: 'inventario',
+                children: [
+                    { path: '', redirectTo: 'lista', pathMatch: 'full' },
+                    { path: 'lista', component: Listainventario },
+                    { path: 'registro', component: Registroinventario },
+                    { path: 'gestion', component: Gestionarinventario }
                 ]
             },
             { path: '', redirectTo: 'inicio', pathMatch: 'full' }

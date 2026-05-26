@@ -1,0 +1,123 @@
+﻿<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<p-card header="Gestión de Historiales Clínicos" styleClass="p-card-shadow border-round-lg">
+  <p-table
+    #dt
+    [value]="historiales"
+    [loading]="loading"
+    styleClass="p-datatable-striped"
+    [rows]="10"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['paciente.nombre','paciente.apellido','paciente.dni','cita.paciente.nombre','cita.paciente.apellido','cita.paciente.dni','estado']"
+    selectionMode="single"
+    [(selection)]="selectedHistorial"
+    (onRowSelect)="onRowSelect($event)"
+    dataKey="id"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} historiales"
+    [showCurrentPageReport]="true">
+
+    <ng-template pTemplate="caption">
+      <div class="flex align-items-center justify-content-between">
+        <h5 class="m-0">Historiales Clínicos</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="$any($event.target) && dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="fecha_emision">Fecha Emisión <p-sortIcon field="fecha_emision"></p-sortIcon></th>
+        <th>Paciente</th>
+        <th>DNI</th>
+        <th>Fecha Cita</th>
+        <th class="text-right">Monto Total</th>
+        <th>Estado</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-historial>
+      <tr [pSelectableRow]="historial">
+        <td>{{formatearFecha(historial.fecha_emision)}}</td>
+        <td>{{obtenerPaciente(historial)}}</td>
+        <td>{{obtenerDni(historial)}}</td>
+        <td>{{obtenerFechaCita(historial)}}</td>
+        <td class="text-right">S/ {{historial.monto_total | number:'1.2-2'}}</td>
+        <td><p-tag [value]="historial.estado" [severity]="historial.estado === 'Activo' ? 'success' : 'danger'"></p-tag></td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center">No se encontraron historiales clínicos</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<p-dialog
+  header="Acciones para historial clínico"
+  [(visible)]="displayAccionesDialog"
+  [modal]="true"
+  [style]="{width: '450px'}"
+  (onHide)="onAccionesDialogHide()">
+  <div class="flex flex-column gap-3 mt-3">
+    <button pButton pRipple label="Editar Historial" icon="pi pi-pencil" class="p-button-info w-full" (click)="abrirDialogEditar()"></button>
+    <button pButton pRipple label="Cambiar Estado" icon="pi pi-sync" class="p-button-warning w-full" (click)="confirmarCambioEstado()"></button>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayAccionesDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Editar Historial Clínico"
+  [(visible)]="displayFormDialog"
+  [modal]="true"
+  [style]="{width: '650px'}">
+  <form #historialForm="ngForm" class="p-fluid">
+    <div class="flex flex-column gap-4 pt-3">
+      <div class="grid">
+        <div class="col-12 md:col-6">
+          <label class="font-semibold">Paciente</label>
+          <div>{{obtenerPaciente(historialParaForm)}}</div>
+        </div>
+        <div class="col-12 md:col-6">
+          <label class="font-semibold">Fecha Emisión</label>
+          <div>{{formatearFecha(historialParaForm.fecha_emision)}}</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="col-12 md:col-6">
+          <label class="font-semibold">Fecha Cita</label>
+          <div>{{obtenerFechaCita(historialParaForm)}}</div>
+        </div>
+        <div class="col-12 md:col-6">
+          <label for="montoTotal" class="font-semibold">Monto Total</label>
+          <input id="montoTotal" pInputText [(ngModel)]="historialParaForm.monto_total" name="montoTotal" type="number" min="0" class="w-full" required />
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-4 align-items-center">
+        <span class="font-semibold">Estado:</span>
+        <div class="flex align-items-center">
+          <p-radiobutton name="estadoHistorial" value="Activo" [(ngModel)]="historialParaForm.estado" inputId="historialActivo" />
+          <label for="historialActivo" class="ml-2">Activo</label>
+        </div>
+        <div class="flex align-items-center">
+          <p-radiobutton name="estadoHistorial" value="Inactivo" [(ngModel)]="historialParaForm.estado" inputId="historialInactivo" />
+          <label for="historialInactivo" class="ml-2">Inactivo</label>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayFormDialog = false"></button>
+    <button pButton pRipple label="Guardar Cambios" icon="pi pi-check" (click)="guardarHistorial()" [disabled]="!historialForm.form.valid"></button>
+  </ng-template>
+</p-dialog>

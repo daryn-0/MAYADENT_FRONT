@@ -1,0 +1,144 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<p-card header="Gestión de Inventario">
+  
+  <p-table 
+    #dt
+    [value]="inventariosActivos" 
+    styleClass="p-datatable-striped" 
+    [rows]="10" 
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['nombre','descripcion']"
+    selectionMode="single" 
+    [(selection)]="selectedInventario" 
+    (onRowSelect)="onRowSelect($event)"
+    dataKey="id"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} items"
+    [showCurrentPageReport]="true">
+    
+    <ng-template pTemplate="caption">
+      <div class="flex align-items-center justify-content-between">
+        <h5 class="m-0">Inventario Activo</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            (input)="$any($event.target) && dt.filterGlobal($any($event.target).value, 'contains')" 
+            placeholder="Buscar..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+        <th>Descripción</th>
+        <th pSortableColumn="cantidad">Stock <p-sortIcon field="cantidad"></p-sortIcon></th>
+        <th>Unidad</th>
+        <th>Costo</th>
+        <th>Vencimiento</th>
+        <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr [pSelectableRow]="item">
+        <td><span class="font-semibold">{{item.nombre}}</span></td>
+        <td><span class="text-sm">{{item.descripcion || 'Sin descripción'}}</span></td>
+        <td>
+          <p-tag [value]="item.cantidad.toString()" [severity]="getSeverityStock(item.cantidad)"></p-tag>
+        </td>
+        <td>{{item.unidad_medida}}</td>
+        <td>S/ {{item.costo_unitario | number:'1.2-2'}}</td>
+        <td>{{formatearFechaDisplay(item.fecha_vencimiento)}}</td>
+        <td>
+          <p-tag [value]="item.estado" [severity]="item.estado === 'Activo' ? 'success' : 'danger'"></p-tag>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">No se encontraron items</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</p-card>
+
+<!-- Diálogo de Acciones -->
+<p-dialog 
+  header="Acciones para el Item" 
+  [(visible)]="displayAccionesDialog" 
+  [modal]="true" 
+  [style]="{width: '450px'}"
+  (onHide)="onAccionesDialogHide()">
+  
+  <div *ngIf="selectedInventario" class="mb-3">
+    <p><strong>Item:</strong> {{selectedInventario.nombre}}</p>
+    <p><strong>Stock:</strong> {{selectedInventario.cantidad}} {{selectedInventario.unidad_medida}}</p>
+  </div>
+
+  <div class="flex flex-column gap-3 mt-3">
+    <button pButton pRipple label="Editar Item" icon="pi pi-pencil" class="p-button-info w-full" (click)="abrirDialogEditar()"></button>
+    <button pButton pRipple label="Cambiar Estado (Activo/Inactivo)" icon="pi pi-sync" class="p-button-warning w-full" (click)="confirmarCambioEstado()"></button>
+    <button pButton pRipple label="Eliminar Item (Permanente)" icon="pi pi-trash" class="p-button-danger w-full" (click)="confirmarEliminar()"></button>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayAccionesDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Diálogo de Formulario para Editar -->
+<p-dialog 
+  header="Editar Item" 
+  [(visible)]="displayFormDialog" 
+  [modal]="true" 
+  [style]="{width: '600px'}">
+  
+  <form #inventarioForm="ngForm" class="p-fluid">
+    <div class="flex flex-column gap-4 pt-4">
+      
+      <div class="flex flex-column gap-2">
+        <label for="nombre">Nombre *</label>
+        <input id="nombre" type="text" pInputText [(ngModel)]="inventarioParaForm.nombre" name="nombre" required>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="unidad">Unidad de Medida *</label>
+        <input id="unidad" type="text" pInputText [(ngModel)]="inventarioParaForm.unidad_medida" name="unidad" required>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" [(ngModel)]="inventarioParaForm.descripcion" name="descripcion" class="p-inputtext w-full" rows="3" style="resize: vertical;"></textarea>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="cantidad">Cantidad *</label>
+        <p-inputNumber id="cantidad" [(ngModel)]="inventarioParaForm.cantidad" name="cantidad" [min]="0" [showButtons]="true" required></p-inputNumber>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="costo">Costo Unitario (S/.) *</label>
+        <p-inputNumber id="costo" [(ngModel)]="inventarioParaForm.costo_unitario" name="costo" mode="currency" currency="PEN" locale="es-PE" [minFractionDigits]="2" [min]="0" required></p-inputNumber>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="vencimiento">Fecha de Vencimiento</label>
+        <p-datepicker id="vencimiento" [(ngModel)]="inventarioParaForm.fecha_vencimiento" name="vencimiento" dateFormat="dd/mm/yy" [showIcon]="true"></p-datepicker>
+      </div>
+
+    </div>
+  </form>
+  
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayFormDialog = false"></button>
+    <button pButton pRipple label="Guardar Cambios" icon="pi pi-check" (click)="guardarInventario()" [disabled]="!inventarioForm.form.valid"></button>
+  </ng-template>
+    
+</p-dialog>

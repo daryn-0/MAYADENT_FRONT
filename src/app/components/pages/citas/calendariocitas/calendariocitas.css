@@ -1,0 +1,444 @@
+/* Contenedor principal del calendario */
+.calendario-container {
+  min-height: 100vh;
+  background-color: var(--p-surface-ground); /* Beige */
+  padding: 2rem;
+}
+
+/* Contenido principal */
+.calendario-contenido {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.titulo-vista {
+  background-color: var(--p-surface-section); /* Blanco */
+  padding: 1.5rem 2rem;
+  border-radius: var(--p-border-radius);
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(47, 65, 86, 0.08); /* Sombra suave Navy */
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.vista-info h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--p-text-color); /* Navy */
+  margin-bottom: 0.5rem;
+}
+
+.contador-citas {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.total-citas {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--p-primary-color); /* Teal */
+}
+
+.filtro-activo {
+  font-size: 0.9rem;
+  color: var(--p-text-color-secondary); /* Teal secundario */
+  background-color: var(--p-surface-ground); /* Beige */
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+}
+
+.controles-vista {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.navegacion-fecha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--p-surface-ground); /* Beige */
+  padding: 0.25rem;
+  border-radius: var(--p-border-radius);
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+}
+
+.selector-fecha,
+.selector-vista,
+.filtro-estado {
+  min-width: 150px;
+}
+
+/* Vista por día */
+.vista-dia {
+  background-color: var(--p-surface-section); /* Blanco */
+  border-radius: var(--p-border-radius);
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(47, 65, 86, 0.08); /* Sombra suave Navy */
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+}
+
+.resumen-dia {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.estadistica {
+  background-color: var(--p-surface-ground); /* Beige */
+  padding: 1.5rem;
+  border-radius: var(--p-border-radius);
+  text-align: center;
+  border: 2px solid var(--p-surface-border); /* Sky Blue */
+  transition: all 0.3s ease;
+}
+
+.estadistica:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47, 65, 86, 0.15);
+  border-color: var(--p-primary-color); /* Teal */
+}
+
+.estadistica.confirmadas {
+  background-color: rgba(86, 124, 141, 0.1); /* Teal claro */
+  border-color: var(--p-primary-color); /* Teal */
+}
+
+.estadistica.pendientes {
+  background-color: rgba(200, 217, 230, 0.3); /* Sky Blue claro */
+  border-color: var(--p-surface-border); /* Sky Blue */
+}
+
+.estadistica.canceladas {
+  background-color: rgba(47, 65, 86, 0.1); /* Navy claro */
+  border-color: var(--p-secondary-color); /* Navy */
+}
+
+.estadistica .numero {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--p-primary-color); /* Teal */
+  margin-bottom: 0.5rem;
+}
+
+.estadistica .etiqueta {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--p-text-color-secondary); /* Teal secundario */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lista-citas-dia {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.sin-citas {
+  text-align: center;
+  padding: 3rem;
+  color: var(--p-text-color-secondary); /* Teal secundario */
+}
+
+.sin-citas i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  color: var(--p-surface-border); /* Sky Blue */
+}
+
+.sin-citas p {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.filtro-info {
+  font-size: 0.9rem;
+  color: var(--p-text-color-secondary); /* Teal secundario */
+}
+
+.cita-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  background-color: var(--p-surface-ground); /* Beige */
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+  border-radius: var(--p-border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cita-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47, 65, 86, 0.15);
+  background-color: var(--p-surface-section); /* Blanco */
+  border-color: var(--p-primary-color); /* Teal */
+}
+
+.cita-hora {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--p-primary-color); /* Teal */
+  min-width: 80px;
+  text-align: center;
+  background-color: var(--p-surface-section); /* Blanco */
+  padding: 0.75rem;
+  border-radius: var(--p-border-radius);
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+}
+
+.cita-info {
+  flex: 1;
+}
+
+.paciente-nombre {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--p-text-color); /* Navy */
+  margin-bottom: 0.5rem;
+}
+
+.paciente-datos {
+  font-size: 0.9rem;
+  color: var(--p-text-color-secondary); /* Teal secundario */
+  margin-bottom: 0.25rem;
+}
+
+.cita-descripcion {
+  font-size: 0.9rem;
+  color: var(--p-text-color-secondary); /* Teal secundario */
+  font-style: italic;
+}
+
+.cita-estado {
+  display: flex;
+  align-items: center;
+}
+
+.cita-flecha {
+  color: var(--p-text-color-secondary); /* Teal secundario */
+  font-size: 1.2rem;
+}
+
+/* Vista por semana */
+.vista-semana {
+  background-color: var(--p-surface-section); /* Blanco */
+  border-radius: var(--p-border-radius);
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(47, 65, 86, 0.08); /* Sombra suave Navy */
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+}
+
+.semana-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1rem;
+  min-height: 500px;
+}
+
+.dia-columna {
+  background-color: var(--p-surface-ground); /* Beige */
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+  border-radius: var(--p-border-radius);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.dia-columna:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47, 65, 86, 0.15);
+  border-color: var(--p-primary-color); /* Teal */
+}
+
+.dia-columna.dia-hoy {
+  background-color: rgba(86, 124, 141, 0.1); /* Teal claro */
+  border-color: var(--p-primary-color); /* Teal */
+  box-shadow: 0 4px 16px rgba(86, 124, 141, 0.2);
+}
+
+.dia-header {
+  background-color: var(--p-surface-section); /* Blanco */
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--p-surface-border); /* Sky Blue */
+}
+
+.dia-hoy .dia-header {
+  background-color: var(--p-primary-color); /* Teal */
+  color: var(--p-primary-color-text); /* Blanco */
+}
+
+.dia-nombre {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.dia-fecha {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.dia-contador {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.dia-citas {
+  padding: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.sin-citas-dia {
+  text-align: center;
+  padding: 2rem 0.5rem;
+  color: var(--p-text-color-secondary); /* Teal secundario */
+}
+
+.sin-citas-dia i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--p-surface-border); /* Sky Blue */
+}
+
+.cita-semana {
+  background-color: var(--p-surface-section); /* Blanco */
+  border: 1px solid var(--p-surface-border); /* Sky Blue */
+  border-radius: var(--p-border-radius);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cita-semana:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(47, 65, 86, 0.1);
+  border-color: var(--p-primary-color); /* Teal */
+}
+
+.cita-hora-semana {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--p-primary-color); /* Teal */
+  margin-bottom: 0.5rem;
+}
+
+.cita-paciente-semana {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-text-color); /* Navy */
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.cita-estado-semana {
+  display: flex;
+  justify-content: center;
+}
+
+:host ::ng-deep .tag-pequeno {
+  font-size: 0.7rem !important;
+  padding: 0.25rem 0.5rem !important;
+}
+
+/* Estados de citas con colores de la aplicación */
+.estado-pendiente {
+  border-left: 3px solid var(--p-surface-border); /* Sky Blue */
+  background: linear-gradient(90deg, rgba(200, 217, 230, 0.2), transparent);
+}
+
+.estado-confirmada {
+  border-left: 3px solid var(--p-primary-color); /* Teal */
+  background: linear-gradient(90deg, rgba(86, 124, 141, 0.2), transparent);
+}
+
+.estado-atendida {
+  border-left: 3px solid var(--p-secondary-color); /* Navy */
+  background: linear-gradient(90deg, rgba(47, 65, 86, 0.2), transparent);
+}
+
+.estado-cancelada {
+  border-left: 3px solid #dc3545; /* Rojo para canceladas */
+  background: linear-gradient(90deg, rgba(220, 53, 69, 0.1), transparent);
+}
+
+.estado-no-asistio {
+  border-left: 3px solid #6c757d; /* Gris para no asistió */
+  background: linear-gradient(90deg, rgba(108, 117, 125, 0.1), transparent);
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .semana-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .calendario-container {
+    padding: 1rem;
+  }
+  
+  .titulo-vista {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .controles-vista {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .semana-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .resumen-dia {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .cita-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .cita-hora {
+    text-align: left;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .resumen-dia {
+    grid-template-columns: 1fr;
+  }
+  
+  .controles-vista {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .navegacion-fecha {
+    justify-content: center;
+  }
+}

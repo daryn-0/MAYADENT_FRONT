@@ -131,7 +131,7 @@ export class Registrocitas implements OnInit {
   }
 
   agregarTratamiento(): void {
-    const maxTratamientos = 10;
+    const maxTratamientos = 3;
     
     if (this.tratamientosForm.length >= maxTratamientos) {
       this.showToast('warn', 'Límite alcanzado', `Solo puede agregar hasta ${maxTratamientos} tratamientos por cita`);
@@ -151,7 +151,7 @@ export class Registrocitas implements OnInit {
       this.tratamientosForm.splice(index, 1);
       this.cdr.detectChanges();
     } else {
-      this.showToast('warn', 'Advertencia', 'Debe haber al menos un tratamiento');
+      this.showToast('warn', 'Advertencia', 'Una cita debe tener al menos un tratamiento');
     }
   }
 
@@ -213,26 +213,95 @@ export class Registrocitas implements OnInit {
     return true;
   }
 
+  validarDisponibilidadHorario(callback: (disponible: boolean) => void): void {
+    if (!this.citaForm.fecha_cita || !this.citaForm.hora_cita) {
+      callback(true);
+      return;
+    }
+
+    // Obtener todas las citas
+    this.citaService.getCitas().subscribe({
+      next: (citas) => {
+        // Validar que citas no sea null o undefined
+        if (!citas || !Array.isArray(citas)) {
+          console.warn('No se recibieron citas o el formato es incorrecto');
+          callback(true); // Permitir continuar si no hay citas
+          return;
+        }
+
+        const fechaCita = this.formatearFecha(this.citaForm.fecha_cita);
+        const horaCita = this.citaForm.hora_cita;
+
+        // Filtrar citas del mismo día
+        const citasMismoDia = citas.filter(c => {
+          const fechaCitaExistente = typeof c.fecha_cita === 'string' 
+            ? c.fecha_cita 
+            : this.formatearFecha(c.fecha_cita);
+          return fechaCitaExistente === fechaCita && c.estado === 'Activo';
+        });
+
+        // Verificar conflictos de horario
+        const conflicto = citasMismoDia.some(c => {
+          const diferenciaMinutos = this.calcularDiferenciaMinutos(horaCita, c.hora_cita);
+          return Math.abs(diferenciaMinutos) < 30; // Menos de 30 minutos de diferencia
+        });
+
+        if (conflicto) {
+          this.showToast('warn', 'Horario No Disponible', 
+            'Ya existe una cita en ese horario. Debe haber al menos 30 minutos de diferencia entre citas.');
+          callback(false);
+        } else {
+          callback(true);
+        }
+      },
+      error: (error) => {
+        console.error('Error al validar horario:', error);
+        // En caso de error, permitir continuar
+        callback(true);
+      }
+    });
+  }
+
+  calcularDiferenciaMinutos(hora1: string, hora2: string): number {
+    const [h1, m1] = hora1.split(':').map(Number);
+    const [h2, m2] = hora2.split(':').map(Number);
+    
+    const minutos1 = h1 * 60 + m1;
+    const minutos2 = h2 * 60 + m2;
+    
+    return minutos1 - minutos2;
+  }
+
   registrarCita(): void {
     if (!this.validarFormulario()) {
       return;
     }
 
-    // Preparar la cita para enviar al backend
-    const citaParaEnviar = this.prepararCitaParaBackend();
-
-    // Crear la cita
-    this.citaService.createCita(citaParaEnviar).subscribe({
-      next: (citaCreada) => {
-        console.log('Cita creada:', citaCreada);
-        
-        // Crear los tratamientos asociados
-        this.crearTratamientosCita(citaCreada);
-      },
-      error: (error) => {
-        console.error('Error al crear cita:', error);
-        this.showToast('error', 'Error', 'No se pudo registrar la cita');
+    // Validar disponibilidad de horario antes de crear la cita
+    this.validarDisponibilidadHorario((disponible) => {
+      if (!disponible) {
+        return;
       }
+
+      // Preparar la cita para enviar al backend
+      const citaParaEnviar = this.prepararCitaParaBackend();
+
+      // Crear la cita
+      this.citaService.createCita(citaParaEnviar).subscribe({
+        next: (citaCreada) => {
+          console.log('Cita creada:', citaCreada);
+          
+          // Verificar si se envió correo (ajustar según respuesta del backend)
+          this.mostrarNotificacionCorreo('registro', citaCreada.paciente?.correo || '');
+          
+          // Crear los tratamientos asociados
+          this.crearTratamientosCita(citaCreada);
+        },
+        error: (error) => {
+          console.error('Error al crear cita:', error);
+          this.showToast('error', 'Error', 'No se pudo registrar la cita');
+        }
+      });
     });
   }
 
@@ -248,10 +317,11 @@ export class Registrocitas implements OnInit {
     };
   }
 
-  formatearFecha(fecha: Date): string {
-    const year = fecha.getFullYear();
-    const month = String(fecha.getMonth() + 1).padStart(2, '0');
-    const day = String(fecha.getDate()).padStart(2, '0');
+  formatearFecha(fecha: Date | string): string {
+    const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
@@ -273,6 +343,10 @@ export class Registrocitas implements OnInit {
     Promise.all(promesas)
       .then(() => {
         this.showToast('success', 'Éxito', 'Cita registrada correctamente');
+        
+        // Mostrar notificación de correo enviado
+        this.mostrarNotificacionCorreo('registro', cita.paciente?.correo || '');
+        
         // Limpiar el formulario después de registrar
         setTimeout(() => {
           this.limpiarFormulario();
@@ -283,6 +357,26 @@ export class Registrocitas implements OnInit {
         console.error('Detalles del error:', error);
         this.showToast('error', 'Error', 'La cita se creó pero hubo un error al agregar los tratamientos: ' + (error?.error?.message || error?.message || 'Error desconocido'));
       });
+  }
+
+  mostrarNotificacionCorreo(tipo: 'registro' | 'confirmacion', emailPaciente: string): void {
+    const mensajes = {
+      registro: {
+        titulo: '📧 Correo Enviado',
+        mensaje: `Se envió la notificación de nueva cita a: ${emailPaciente}`
+      },
+      confirmacion: {
+        titulo: '📧 Confirmación Enviada', 
+        mensaje: `Se envió la confirmación de cita a: ${emailPaciente}`
+      }
+    };
+
+    const config = mensajes[tipo];
+    
+    // Mostrar toast de éxito para el correo
+    setTimeout(() => {
+      this.showToast('info', config.titulo, config.mensaje);
+    }, 1000); // Delay para que se vea después del toast principal
   }
 
   limpiarFormulario(): void {

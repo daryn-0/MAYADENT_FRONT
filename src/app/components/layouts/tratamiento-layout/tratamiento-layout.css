@@ -1,0 +1,104 @@
+/* Layout de tratamientos con diseño mejorado usando colores globales */
+.tratamiento-layout {
+  min-height: 100vh;
+  background-color: var(--p-surface-ground); /* Beige de la aplicación */
+}
+
+.tratamiento-menu {
+  background-color: var(--p-surface-section); /* Blanco */
+  border-bottom: 2px solid var(--p-surface-border); /* Sky Blue */
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 12px rgba(47, 65, 86, 0.1); /* Sombra con Navy */
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tratamiento-menu button {
+  background-color: var(--p-surface-ground); /* Beige */
+  border: 2px solid var(--p-surface-border); /* Sky Blue */
+  color: var(--p-text-color); /* Navy */
+  padding: 0.875rem 1.75rem;
+  border-radius: var(--p-border-radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tratamiento-menu button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(86, 124, 141, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.tratamiento-menu button:hover::before {
+  left: 100%;
+}
+
+.tratamiento-menu button:hover {
+  background-color: var(--p-surface-section); /* Blanco */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47, 65, 86, 0.15);
+  border-color: var(--p-primary-color); /* Teal */
+  color: var(--p-primary-color); /* Teal */
+}
+
+.tratamiento-menu button.active {
+  background-color: var(--p-primary-color); /* Teal */
+  color: var(--p-primary-color-text); /* Blanco */
+  border-color: var(--p-primary-color); /* Teal */
+  box-shadow: 0 4px 16px rgba(86, 124, 141, 0.3); /* Sombra Teal */
+}
+
+.tratamiento-menu button.active:hover {
+  background-color: var(--p-secondary-color); /* Navy */
+  border-color: var(--p-secondary-color); /* Navy */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47, 65, 86, 0.4); /* Sombra Navy */
+}
+
+.tratamiento-content {
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--p-surface-ground); /* Beige */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tratamiento-menu {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+  
+  .tratamiento-menu button {
+    min-width: 130px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tratamiento-menu {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tratamiento-menu button {
+    width: 100%;
+    max-width: 250px;
+  }
+}

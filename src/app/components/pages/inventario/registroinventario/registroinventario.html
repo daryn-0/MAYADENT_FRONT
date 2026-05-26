@@ -1,0 +1,132 @@
+<p-toast></p-toast>
+
+<div class="container mx-auto p-4">
+  <p-card header="Registrar Item de Inventario">
+    
+    <form #inventarioFormRef="ngForm" class="p-fluid">
+      
+      <div class="grid gap-4">
+        
+        <!-- Nombre -->
+        <div class="col-12 md:col-6">
+          <div class="flex flex-column gap-2">
+            <label for="nombre">Nombre *</label>
+            <input 
+              id="nombre"
+              type="text"
+              pInputText
+              [(ngModel)]="inventarioForm.nombre" 
+              name="nombre"
+              placeholder="Ej: Guantes de látex"
+              required>
+          </div>
+        </div>
+
+        <!-- Unidad de Medida -->
+        <div class="col-12 md:col-6">
+          <div class="flex flex-column gap-2">
+            <label for="unidad">Unidad de Medida *</label>
+            <input 
+              id="unidad"
+              type="text"
+              pInputText
+              [(ngModel)]="inventarioForm.unidad_medida" 
+              name="unidad"
+              placeholder="Ej: Caja, Unidad, Litro"
+              required>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="col-12">
+          <div class="flex flex-column gap-2">
+            <label for="descripcion">Descripción</label>
+            <textarea 
+              id="descripcion"
+              [(ngModel)]="inventarioForm.descripcion" 
+              name="descripcion"
+              class="p-inputtext w-full"
+              rows="3"
+              placeholder="Descripción del item"
+              style="resize: vertical;">
+            </textarea>
+          </div>
+        </div>
+
+        <!-- Cantidad -->
+        <div class="col-12 md:col-4">
+          <div class="flex flex-column gap-2">
+            <label for="cantidad">Cantidad Inicial *</label>
+            <p-inputNumber 
+              id="cantidad"
+              [(ngModel)]="inventarioForm.cantidad" 
+              name="cantidad"
+              [min]="0"
+              [showButtons]="true"
+              class="w-full"
+              required>
+            </p-inputNumber>
+          </div>
+        </div>
+
+        <!-- Costo Unitario -->
+        <div class="col-12 md:col-4">
+          <div class="flex flex-column gap-2">
+            <label for="costo">Costo Unitario (S/.) *</label>
+            <p-inputNumber 
+              id="costo"
+              [(ngModel)]="inventarioForm.costo_unitario" 
+              name="costo"
+              mode="currency" 
+              currency="PEN" 
+              locale="es-PE"
+              [minFractionDigits]="2"
+              [min]="0"
+              class="w-full"
+              required>
+            </p-inputNumber>
+          </div>
+        </div>
+
+        <!-- Fecha de Vencimiento -->
+        <div class="col-12 md:col-4">
+          <div class="flex flex-column gap-2">
+            <label for="vencimiento">Fecha de Vencimiento</label>
+            <p-datepicker 
+              id="vencimiento"
+              [(ngModel)]="inventarioForm.fecha_vencimiento" 
+              name="vencimiento"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              placeholder="Opcional"
+              class="w-full">
+            </p-datepicker>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="flex gap-3 justify-content-end mt-4">
+        <button 
+          pButton 
+          type="button"
+          label="Cancelar" 
+          icon="pi pi-times" 
+          class="p-button-secondary"
+          (click)="cancelar()">
+        </button>
+        <button 
+          pButton 
+          type="button"
+          label="Registrar Item" 
+          icon="pi pi-check" 
+          class="p-button-success"
+          (click)="registrarInventario()">
+        </button>
+      </div>
+
+    </form>
+
+  </p-card>
+</div>
