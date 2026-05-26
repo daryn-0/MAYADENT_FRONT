@@ -1,0 +1,63 @@
+<div class="layout">
+  <!-- Sidebar fijo -->
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>MAYADENT</h2>
+    </div>
+
+    <nav>
+      <ul>
+        <li routerLinkActive="active">
+          <a routerLink="/inicio">
+            <i class="pi pi-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+
+        <li routerLinkActive="active">
+          <a routerLink="/pacientes">
+            <i class="pi pi-users"></i>
+            <span>Pacientes</span>
+          </a>
+        </li>
+
+        <li routerLinkActive="active">
+          <a routerLink="/citas">
+            <i class="pi pi-calendar"></i>
+            <span>Citas</span>
+          </a>
+        </li>
+
+        <li routerLinkActive="active">
+          <a routerLink="/historial-clinico">
+            <i class="pi pi-file-edit"></i>
+            <span>Historial Clínico</span>
+          </a>
+        </li>
+
+        <li routerLinkActive="active">
+          <a routerLink="/inventario">
+            <i class="pi pi-box"></i>
+            <span>Inventario</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Contenedor principal -->
+  <div class="main">
+    <!-- Barra superior -->
+    <header class="topbar">
+      <div class="user-section">
+        <i class="pi pi-user"></i>
+        <span>Admin</span>
+      </div>
+    </header>
+
+    <!-- Aquí se cargan las vistas -->
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

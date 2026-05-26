@@ -1,0 +1,43 @@
+/* Estilos para el componente de gestión de tratamientos */
+
+.p-card-shadow {
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+}
+
+.border-round-lg {
+  border-radius: 12px;
+}
+
+/* Mejoras para la tabla */
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: var(--surface-hover);
+  cursor: pointer;
+}
+
+/* Estilos para los botones de acción */
+.p-button.w-full {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* Espaciado para iconos en la tabla */
+.pi.mr-2 {
+  margin-right: 0.5rem;
+}
+
+/* Mejoras para el formulario */
+.p-fluid .p-field {
+  margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .p-datatable {
+    font-size: 0.875rem;
+  }
+  
+  .p-dialog {
+    width: 95vw !important;
+    margin: 0 auto;
+  }
+}

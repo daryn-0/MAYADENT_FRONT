@@ -1,0 +1,318 @@
+<p-toast></p-toast>
+
+<div class="calendario-container">
+  <!-- Contenido principal -->
+  <div class="calendario-contenido">
+    
+    <!-- Header con controles -->
+    <div class="titulo-vista">
+      <div class="vista-info">
+        <h2>
+          <span *ngIf="vistaActual === 'dia'">
+            {{obtenerNombreDia(fechaSeleccionada) | titlecase}} - {{formatearFecha(fechaSeleccionada)}}
+          </span>
+          <span *ngIf="vistaActual === 'semana'">
+            Semana del {{formatearFecha(inicioSemana)}} al {{formatearFecha(finSemana)}}
+          </span>
+        </h2>
+        <div class="contador-citas">
+          <span class="total-citas">{{citasFiltradas.length}} citas</span>
+          <span *ngIf="estadoFiltro !== 'todos'" class="filtro-activo">
+            (Filtrado por: {{estadoFiltro | titlecase}})
+          </span>
+        </div>
+      </div>
+
+      <!-- Controles -->
+      <div class="controles-vista">
+        <!-- Navegación -->
+        <div class="navegacion-fecha">
+          <button 
+            pButton 
+            pRipple 
+            icon="pi pi-chevron-left" 
+            class="p-button-outlined p-button-sm"
+            (click)="navegarFecha('prev')">
+          </button>
+          
+          <button 
+            pButton 
+            pRipple 
+            label="Hoy" 
+            class="p-button-outlined p-button-sm"
+            (click)="irAHoy()">
+          </button>
+          
+          <button 
+            pButton 
+            pRipple 
+            icon="pi pi-chevron-right" 
+            class="p-button-outlined p-button-sm"
+            (click)="navegarFecha('next')">
+          </button>
+        </div>
+
+        <!-- Selector de fecha -->
+        <p-datepicker 
+          [(ngModel)]="fechaSeleccionada" 
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          placeholder="Ir a fecha"
+          (onSelect)="onFechaSeleccionada()"
+          class="selector-fecha">
+        </p-datepicker>
+
+        <!-- Selector de vista -->
+        <p-select 
+          [options]="opcionesVista" 
+          [(ngModel)]="vistaActual" 
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="cambiarVista($event.value)"
+          class="selector-vista">
+        </p-select>
+
+        <!-- Filtro por estado -->
+        <p-select 
+          [options]="estadosDisponibles" 
+          [(ngModel)]="estadoFiltro" 
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onFiltroEstadoChange()"
+          placeholder="Filtrar por estado"
+          class="filtro-estado">
+        </p-select>
+
+        <p-select 
+          [options]="opcionesFiltroDoctor" 
+          [(ngModel)]="filtroDoctor" 
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onFiltroDoctorChange()"
+          placeholder="Filtrar por doctor"
+          class="filtro-doctor">
+        </p-select>
+
+        <!-- Botón refrescar -->
+        <button 
+          pButton 
+          pRipple 
+          icon="pi pi-refresh" 
+          class="p-button-outlined p-button-sm"
+          (click)="cargarCitas()"
+          pTooltip="Refrescar">
+        </button>
+      </div>
+    </div>
+
+    <!-- Vista por Día -->
+    <div *ngIf="vistaActual === 'dia'" class="vista-dia">
+      <!-- Resumen del día -->
+      <div class="resumen-dia">
+        <div class="estadistica">
+          <div class="numero">{{citasDelDia.length}}</div>
+          <div class="etiqueta">Total</div>
+        </div>
+        <div class="estadistica confirmadas">
+          <div class="numero">{{contarCitasPorEstado('confirmada')}}</div>
+          <div class="etiqueta">Confirmadas</div>
+        </div>
+        <div class="estadistica pendientes">
+          <div class="numero">{{contarCitasPorEstado('pendiente')}}</div>
+          <div class="etiqueta">Pendientes</div>
+        </div>
+        <div class="estadistica canceladas">
+          <div class="numero">{{contarCitasPorEstado('cancelada')}}</div>
+          <div class="etiqueta">Canceladas</div>
+        </div>
+      </div>
+
+      <!-- Lista de citas del día -->
+      <div class="lista-citas-dia">
+        <div *ngIf="citasDelDia.length === 0" class="sin-citas">
+          <i class="pi pi-calendar-times"></i>
+          <p>No hay citas programadas para este día</p>
+          <span *ngIf="estadoFiltro !== 'todos'" class="filtro-info">
+            (Con el filtro actual: {{estadoFiltro | titlecase}})
+          </span>
+        </div>
+        
+        <div *ngFor="let citaDelDia of citasDelDia" class="cita-item" (click)="verDetalleCita(citaDelDia.cita)">
+          <div class="cita-hora">{{citaDelDia.cita.hora_cita}}</div>
+          <div class="cita-info">
+            <div class="paciente-nombre">
+              {{citaDelDia.cita.paciente?.nombre}} {{citaDelDia.cita.paciente?.apellido}}
+            </div>
+            <div class="paciente-datos">
+              DNI: {{citaDelDia.cita.paciente?.dni}} | 📞 {{citaDelDia.cita.paciente?.telefono}}
+            </div>
+            <div class="paciente-datos">
+              Doctor(es): {{obtenerDoctoresDeCita(citaDelDia.cita)}}
+            </div>
+            <div *ngIf="citaDelDia.cita.descripcion" class="cita-descripcion">
+              {{citaDelDia.cita.descripcion}}
+            </div>
+          </div>
+          <div class="cita-estado">
+            <p-tag 
+              [value]="citaDelDia.cita.estadoCita?.nombre || 'Sin estado'" 
+              [severity]="getSeverityEstadoCita(citaDelDia.cita.estadoCita?.nombre || '')">
+            </p-tag>
+          </div>
+          <i class="pi pi-chevron-right cita-flecha"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista por Semana -->
+    <div *ngIf="vistaActual === 'semana'" class="vista-semana">
+      <div class="semana-grid">
+        <div *ngFor="let dia of diasSemana" class="dia-columna" [class.dia-hoy]="esHoy(dia.fecha)">
+          <div class="dia-header">
+            <div class="dia-nombre">{{obtenerNombreDia(dia.fecha)}}</div>
+            <div class="dia-fecha">{{obtenerFechaCorta(dia.fecha)}}</div>
+            <div class="dia-contador">{{dia.citas.length}} citas</div>
+          </div>
+          
+          <div class="dia-citas">
+            <div *ngIf="dia.citas.length === 0" class="sin-citas-dia">
+              <i class="pi pi-calendar"></i>
+              <span>Sin citas</span>
+            </div>
+            
+            <div *ngFor="let citaDelDia of dia.citas" 
+                 class="cita-semana" 
+                 (click)="verDetalleCita(citaDelDia.cita)"
+                 [class]="'estado-' + (citaDelDia.cita.estadoCita?.nombre?.toLowerCase() || 'sin-estado')">
+              <div class="cita-hora-semana">{{citaDelDia.cita.hora_cita}}</div>
+              <div class="cita-paciente-semana">
+                {{citaDelDia.cita.paciente?.nombre}} {{citaDelDia.cita.paciente?.apellido}}
+              </div>
+              <div class="cita-paciente-semana">
+                {{obtenerDoctoresDeCita(citaDelDia.cita)}}
+              </div>
+              <div class="cita-estado-semana">
+                <p-tag 
+                  [value]="citaDelDia.cita.estadoCita?.nombre || 'Sin estado'" 
+                  [severity]="getSeverityEstadoCita(citaDelDia.cita.estadoCita?.nombre || '')"
+                  styleClass="tag-pequeno">
+                </p-tag>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Diálogo de detalles de cita -->
+<p-dialog 
+  [header]="'Detalles de la Cita - ' + formatearFecha(citaSeleccionada?.fecha_cita || '')" 
+  [(visible)]="displayDetalleDialog" 
+  [modal]="true" 
+  [style]="{width: '700px'}">
+  
+  <div *ngIf="citaSeleccionada" class="mb-4">
+    <div class="grid">
+      <div class="col-12 md:col-6">
+        <div class="mb-3">
+          <strong>Paciente:</strong><br>
+          <span class="text-lg">{{citaSeleccionada.paciente?.nombre}} {{citaSeleccionada.paciente?.apellido}}</span><br>
+          <span class="text-sm text-gray-600">DNI: {{citaSeleccionada.paciente?.dni}}</span>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <div class="mb-3">
+          <strong>Fecha y Hora:</strong><br>
+          <span class="text-lg">{{formatearFecha(citaSeleccionada.fecha_cita)}}</span><br>
+          <span class="text-lg font-semibold">{{citaSeleccionada.hora_cita}}</span>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <div class="mb-3">
+          <strong>Estado:</strong><br>
+          <p-tag 
+            [value]="citaSeleccionada.estadoCita?.nombre || 'Sin estado'" 
+            [severity]="getSeverityEstadoCita(citaSeleccionada.estadoCita?.nombre || '')"
+            class="text-base">
+          </p-tag>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <div class="mb-3">
+          <strong>Contacto:</strong><br>
+          <span class="text-sm">📞 {{citaSeleccionada.paciente?.telefono}}</span><br>
+          <span class="text-sm">📧 {{citaSeleccionada.paciente?.correo}}</span>
+        </div>
+      </div>
+      <div class="col-12" *ngIf="citaSeleccionada.descripcion">
+        <div class="mb-3">
+          <strong>Descripción:</strong><br>
+          <span>{{citaSeleccionada.descripcion}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tratamientos -->
+  <div class="mb-4">
+    <h5>Tratamientos Programados</h5>
+    <p-table [value]="tratamientosCita" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50%">Tratamiento</th>
+          <th style="width:25%">Doctor</th>
+          <th style="width:25%" class="text-right">Costo</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-ct>
+        <tr>
+          <td>
+            <div>
+              <div class="font-semibold">{{ct.tratamiento?.nombre}}</div>
+              <div class="text-sm text-gray-600">{{ct.tratamiento?.descripcion}}</div>
+            </div>
+          </td>
+          <td>
+            <span *ngIf="ct.tratamiento?.doctor">
+              {{ct.tratamiento.doctor.nombre}} {{ct.tratamiento.doctor.apellido}}
+            </span>
+            <span *ngIf="!ct.tratamiento?.doctor" class="text-gray-500">Sin asignar</span>
+          </td>
+          <td class="text-right">
+            <span class="font-semibold">S/ {{ct.costo_final | number:'1.2-2'}}</span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td colspan="2" class="text-right font-bold text-lg">Total:</td>
+          <td class="text-right font-bold text-primary text-xl">
+            S/ {{calcularTotalCita() | number:'1.2-2'}}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3" class="text-center py-4">
+            <i class="pi pi-info-circle text-gray-400 text-2xl mb-2"></i>
+            <p class="text-gray-500">No hay tratamientos asociados a esta cita</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      pRipple 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      class="p-button-text"
+      (click)="displayDetalleDialog = false">
+    </button>
+  </ng-template>
+</p-dialog>

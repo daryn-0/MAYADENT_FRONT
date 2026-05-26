@@ -1,0 +1,187 @@
+<!-- Contenedores Esenciales de PrimeNG -->
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<p-card header="Gestión de Tratamientos" styleClass="p-card-shadow border-round-lg">
+  <!-- Barra de herramientas (Esta parte estaba bien) -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="start">
+      <button pButton pRipple label="Añadir Tratamiento" icon="pi pi-plus" class="p-button-success" (click)="abrirDialogNuevo()"></button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Tabla de Tratamientos (Esta parte estaba bien) -->
+  <p-table 
+    #dt
+    [value]="publicTratamientos" 
+    styleClass="p-datatable-striped" 
+    [rows]="10" 
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['nombre','descripcion','doctor.nombre','doctor.apellido']"
+    selectionMode="single" 
+    [(selection)]="selectedTratamiento" 
+    (onRowSelect)="onRowSelect($event)"
+    dataKey="id"
+    [tableStyle]="{'min-width': '75rem'}"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} tratamientos"
+    [showCurrentPageReport]="true"
+    >
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center justify-content-between">
+            <h5 class="m-0">Tratamientos Registrados</h5>
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="$any($event.target) && dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
+            </span>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nombre" style="width:20%">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+        <th style="width:30%">Descripción</th>
+        <th pSortableColumn="costo_base" style="width:15%">Costo (S/.) <p-sortIcon field="costo_base"></p-sortIcon></th>
+        <th pSortableColumn="doctor.nombre" style="width:20%">Doctor Asignado <p-sortIcon field="doctor.nombre"></p-sortIcon></th>
+        <th pSortableColumn="estado" style="width:15%">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-t>
+      <tr [pSelectableRow]="t">
+        <td>{{t.nombre}}</td>
+        <td>{{t.descripcion}}</td>
+        <td>{{t.costo_base | number:'1.2-2'}}</td>
+        <td>
+          <i class="pi pi-user-md mr-2" *ngIf="t.doctor"></i>
+          {{ t.doctor?.nombre }} {{ t.doctor?.apellido || 'Sin Asignar' }}
+        </td>
+        <td>
+          <p-tag [value]="t.estado" [severity]="getSeverityForEstado(t.estado)"></p-tag>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center">No se encontraron tratamientos.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+
+<!-- 
+  ======================================================
+  DIÁLOGO 1: SELECCIÓN DE ACCIONES (Esta parte estaba bien)
+  ======================================================
+-->
+<p-dialog 
+  header="Acciones para: {{selectedTratamiento?.nombre}}" 
+  [(visible)]="displayAccionesDialog" 
+  [modal]="true" 
+  [style]="{width: '450px'}"
+  (onHide)="onAccionesDialogHide()">
+  
+  <div class="flex flex-column gap-3 mt-3">
+    <button pButton pRipple label="Editar Tratamiento" icon="pi pi-pencil" class="p-button-info w-full" (click)="abrirDialogEditar()"></button>
+    <button pButton pRipple label="Cambiar Estado (Activo/Inactivo)" icon="pi pi-sync" class="p-button-warning w-full" (click)="confirmarCambioEstado()"></button>
+    <button pButton pRipple label="Eliminar Tratamiento (Permanente)" icon="pi pi-trash" class="p-button-danger w-full" (click)="confirmarEliminar()"></button>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayAccionesDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+
+<!-- 
+  ======================================================
+  DIÁLOGO 2: FORMULARIO (¡¡CORREGIDO!!)
+  ======================================================
+-->
+<p-dialog 
+  [header]="esNuevoTratamiento ? 'Registrar Nuevo Tratamiento' : 'Editar Tratamiento'" 
+  [(visible)]="displayFormDialog" 
+  [modal]="true" 
+  [style]="{width: '700px'}"> <!-- ¡Ancho aumentado! -->
+  
+  <form #tratamientoForm="ngForm" class="p-fluid">
+    
+    <!-- Contenedor vertical con espaciado -->
+    <div class="flex flex-column gap-5 justify-center pt-4">
+      
+      <!-- Fila 1: Nombre (Este sí funciona con floatlabel) -->
+      <p-floatlabel class="w-full">
+        <input id="t-nombre" pInputText [(ngModel)]="tratamientoParaForm.nombre" name="nombre" class="w-full" required />
+        <label for="t-nombre">Nombre del Tratamiento</label>
+      </p-floatlabel>
+      
+      <!-- 
+        Fila 2: Descripción (¡¡CORREGIDO!!)
+        <p-floatlabel> NO es compatible con <p-textarea>.
+        Usamos un <label> normal.
+      -->
+      <div class="flex flex-column gap-2">
+        <label for="t-desc">Descripción (Opcional)</label>
+        <textarea id="t-desc" [(ngModel)]="tratamientoParaForm.descripcion" name="descripcion" class="w-full p-inputtext" rows="3" style="resize: vertical;"></textarea>
+      </div>
+
+      <!-- Fila 3: Costo Base (Este sí funciona con floatlabel) -->
+      <p-floatlabel class="w-full">
+        <p-inputNumber id="t-costo" [(ngModel)]="tratamientoParaForm.costo_base" name="costo" mode="currency" currency="PEN" locale="es-PE" [minFractionDigits]="2" class="w-full" required>
+        </p-inputNumber>
+        <label for="t-costo">Costo Base (S/.)</label>
+      </p-floatlabel>
+      
+      <!-- 
+        Fila 4: Doctor (¡¡CORREGIDO!!)
+        <p-floatlabel> NO es compatible con <p-select>.
+        Usamos un <label> normal.
+      -->
+      <div class="flex flex-column gap-2">
+        <label for="t-doctor">Doctor Asignado (Opcional)</label>
+        <p-select 
+          id="t-doctor"
+          [options]="doctoresDisponibles" 
+          [(ngModel)]="tratamientoParaForm.doctor" 
+          name="doctor"
+          placeholder="Seleccione un doctor"
+          [showClear]="true"
+          [filter]="true"
+          dataKey="id"
+          class="w-full"
+          appendTo="body">
+            <ng-template pTemplate="selectedItem">
+              <div *ngIf="tratamientoParaForm.doctor">
+                {{tratamientoParaForm.doctor.nombre}} {{tratamientoParaForm.doctor.apellido}}
+              </div>
+            </ng-template>
+            <ng-template let-doctor pTemplate="item">
+              <div>{{doctor.nombre}} {{doctor.apellido}}</div>
+            </ng-template>
+        </p-select>
+        <small class="text-muted" *ngIf="doctoresDisponibles.length === 0">No hay doctores activos disponibles</small>
+      </div>
+
+
+      <!-- Campo de Estado (Solo visible si estamos EDITANDO) -->
+      <div *ngIf="!esNuevoTratamiento" class="flex flex-wrap gap-4 items-center justify-center md:justify-start pt-2">
+        <span class="text-lg">Estado:</span>
+        <div class="flex items-center">
+            <p-radiobutton name="t-estado" value="Activo" [(ngModel)]="tratamientoParaForm.estado" inputId="t-estadoActivo" />
+            <label for="t-estadoActivo" class="ml-2">Activo</label>
+        </div>
+        <div class="flex items-center">
+            <p-radiobutton name="t-estado" value="Inactivo" [(ngModel)]="tratamientoParaForm.estado" inputId="t-estadoInactivo" />
+            <label for="t-estadoInactivo" class="ml-2">Inactivo</label>
+        </div>
+      </div>
+
+    </div>
+  </form>
+  
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayFormDialog = false"></button>
+    <button pButton pRipple [label]="esNuevoTratamiento ? 'Registrar' : 'Guardar Cambios'" icon="pi pi-check" 
+            (click)="guardarTratamiento()" [disabled]="!tratamientoForm.form.valid"></button>
+  </ng-template>
+    
+</p-dialog>

@@ -1,0 +1,227 @@
+<p-toast></p-toast>
+
+<div class="container mx-auto p-4">
+  <p-card header="Lista de Citas">
+    
+    <!-- Barra de herramientas -->
+    <p-toolbar styleClass="mb-4">
+      <ng-template pTemplate="start">
+        <button 
+          pButton 
+          pRipple 
+          label="Nueva Cita" 
+          icon="pi pi-plus" 
+          class="p-button-success mr-2"
+          (click)="irARegistro()">
+        </button>
+        <button 
+          pButton 
+          pRipple 
+          label="Gestionar Citas" 
+          icon="pi pi-cog" 
+          class="p-button-info"
+          (click)="irAGestion()">
+        </button>
+      </ng-template>
+    </p-toolbar>
+
+    <!-- Filtros -->
+    <div class="mb-4">
+      <div class="flex align-items-center gap-3 flex-wrap">
+        <label for="filtroDoctor" class="font-semibold">Filtrar por Doctor:</label>
+        <p-select 
+          id="filtroDoctor"
+          [options]="opcionesFiltroDoctor" 
+          [(ngModel)]="filtroDoctor" 
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onFiltroDoctorChange()"
+          class="w-auto min-w-[200px]">
+        </p-select>
+        <span class="text-sm text-gray-600">
+          ({{citasFiltradas.length}} de {{citasActivas.length}} citas)
+        </span>
+      </div>
+    </div>
+
+    <!-- Tabla de Citas -->
+    <p-table 
+      #dt
+      [value]="citasFiltradas" 
+      styleClass="p-datatable-striped" 
+      [rows]="10" 
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [globalFilterFields]="['fecha_cita','paciente.nombre','paciente.apellido','paciente.dni','estadoCita.nombre']"
+      dataKey="id"
+      [tableStyle]="{'min-width': '90rem'}"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} citas"
+      [showCurrentPageReport]="true">
+      
+      <ng-template pTemplate="caption">
+        <div class="flex align-items-center justify-content-between">
+          <h5 class="m-0">
+            <span *ngIf="filtroDoctor === 'todos'">Todas las Citas Activas</span>
+            <span *ngIf="filtroDoctor !== 'todos'">Citas del {{obtenerEtiquetaFiltroDoctor()}}</span>
+          </h5>
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input 
+              pInputText 
+              type="text" 
+              (input)="$any($event.target) && dt.filterGlobal($any($event.target).value, 'contains')" 
+              placeholder="Buscar..." />
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="fecha_cita" style="width:12%">
+            Fecha <p-sortIcon field="fecha_cita"></p-sortIcon>
+          </th>
+          <th pSortableColumn="hora_cita" style="width:10%">
+            Hora <p-sortIcon field="hora_cita"></p-sortIcon>
+          </th>
+          <th pSortableColumn="paciente.nombre" style="width:20%">
+            Paciente <p-sortIcon field="paciente.nombre"></p-sortIcon>
+          </th>
+          <th style="width:20%">Doctor(es)</th>
+          <th style="width:25%">Descripción</th>
+          <th pSortableColumn="estadoCita.nombre" style="width:10%">
+            Estado <p-sortIcon field="estadoCita.nombre"></p-sortIcon>
+          </th>
+          <th style="width:3%">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-cita>
+        <tr>
+          <td>{{formatearFecha(cita.fecha_cita)}}</td>
+          <td>{{cita.hora_cita}}</td>
+          <td>
+            <div class="flex flex-column">
+              <span class="font-semibold">{{cita.paciente?.nombre}} {{cita.paciente?.apellido}}</span>
+              <span class="text-sm text-gray-600">DNI: {{cita.paciente?.dni}}</span>
+            </div>
+          </td>
+          <td>
+            <div class="flex flex-column">
+              <span class="text-sm font-medium">{{obtenerDoctoresDeCita(cita)}}</span>
+            </div>
+          </td>
+          <td>
+            <span class="text-sm">{{cita.descripcion || 'Sin descripción'}}</span>
+          </td>
+          <td>
+            <p-tag 
+              [value]="cita.estadoCita?.nombre || 'Sin estado'" 
+              [severity]="getSeverityEstadoCita(cita.estadoCita?.nombre || '')">
+            </p-tag>
+          </td>
+          <td>
+            <button 
+              pButton 
+              pRipple 
+              icon="pi pi-list" 
+              class="p-button-rounded p-button-info p-button-text"
+              pTooltip="Ver tratamientos"
+              tooltipPosition="top"
+              (click)="verTratamientos(cita)">
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center">
+            <div class="flex flex-column align-items-center gap-3 py-5">
+              <i class="pi pi-calendar-times" style="font-size: 3rem; color: var(--text-color-secondary)"></i>
+              <span class="text-xl">No se encontraron citas activas</span>
+              <span *ngIf="filtroDoctor !== 'todos'" class="text-sm text-gray-600">
+                Con el filtro de doctor seleccionado
+              </span>
+              <button 
+                pButton 
+                label="Registrar Primera Cita" 
+                icon="pi pi-plus" 
+                class="p-button-success"
+                (click)="irARegistro()">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+  </p-card>
+</div>
+
+<!-- Diálogo para ver tratamientos de la cita -->
+<p-dialog 
+  [header]="'Tratamientos de la Cita - ' + formatearFecha(selectedCita?.fecha_cita || '')" 
+  [(visible)]="displayTratamientosDialog" 
+  [modal]="true" 
+  [style]="{width: '700px'}">
+  
+  <div *ngIf="selectedCita" class="mb-4">
+    <div class="grid">
+      <div class="col-6">
+        <strong>Paciente:</strong> {{selectedCita.paciente?.nombre}} {{selectedCita.paciente?.apellido}}
+      </div>
+      <div class="col-6">
+        <strong>Hora:</strong> {{selectedCita.hora_cita}}
+      </div>
+      <div class="col-12">
+        <strong>Descripción:</strong> {{selectedCita.descripcion || 'Sin descripción'}}
+      </div>
+    </div>
+  </div>
+
+  <p-table [value]="tratamientosCita" styleClass="p-datatable-sm">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:50%">Tratamiento</th>
+        <th style="width:25%">Doctor</th>
+        <th style="width:25%" class="text-right">Costo</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-ct>
+      <tr>
+        <td>{{ct.tratamiento?.nombre}}</td>
+        <td>
+          <span *ngIf="ct.tratamiento?.doctor">
+            {{ct.tratamiento.doctor.nombre}} {{ct.tratamiento.doctor.apellido}}
+          </span>
+          <span *ngIf="!ct.tratamiento?.doctor" class="text-gray-500">Sin asignar</span>
+        </td>
+        <td class="text-right">S/ {{ct.costo_final | number:'1.2-2'}}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <tr>
+        <td colspan="2" class="text-right font-bold">Total:</td>
+        <td class="text-right font-bold text-primary text-xl">
+          S/ {{calcularTotalCita(tratamientosCita) | number:'1.2-2'}}
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="text-center">No hay tratamientos asociados a esta cita</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      pRipple 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      class="p-button-text"
+      (click)="displayTratamientosDialog = false">
+    </button>
+  </ng-template>
+</p-dialog>

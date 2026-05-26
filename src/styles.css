@@ -1,0 +1,65 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+  /* Fondo principal de la página */
+  --p-surface-ground: #F5EFEB; /* Tu color "Beige" */
+  
+  /* Fondo de Tarjetas, Diálogos, Tablas, etc. */
+  --p-surface-section: #FFFFFF; /* Tu color "White" */
+  
+  /* Color de bordes */
+  --p-surface-border: #C8D9E6; /* Tu color "Sky Blue" */
+
+  /* Color Primario (Botones, links activos, highlights) 
+  */
+  --p-primary-color: #567C8D; /* Tu color "Teal" */
+  --p-primary-color-text: #FFFFFF; /* Texto sobre el color primario */
+
+  /* Color Secundario (para acentos) 
+  */
+  --p-secondary-color: #2F4156; /* Tu color "Navy" */
+  --p-secondary-color-text: #FFFFFF;
+
+  /* Colores de Texto 
+  */
+  --p-text-color: #2F4156; /* "Navy" para texto principal */
+  --p-text-color-secondary: #567C8D; /* "Teal" para texto secundario */
+
+  /* Definir el radio de borde global */
+  --p-border-radius: 8px;
+}
+
+/* Resto de estilos globales... 
+*/
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--p-surface-ground); /* Usamos la variable de Aura */
+  color: var(--p-text-color); /* Usamos la variable de Aura */
+}
+
+/* Sombras personalizadas para Tarjetas */
+.p-card-shadow {
+  box-shadow: 0 2px 8px rgba(47, 65, 86, 0.08) !important; /* Sombra suave con tu color "Navy" */
+  border: 1px solid var(--p-surface-border);
+  border-radius: var(--p-border-radius) !important;
+}
+
+.p-card-shadow .p-card-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+/* Sombras personalizadas para Diálogos */
+.p-dialog-mask {
+  backdrop-filter: blur(2px);
+}
+.p-dialog {
+  box-shadow: 0 5px 25px rgba(47, 65, 86, 0.15) !important;
+  border-radius: var(--p-border-radius) !important;
+}
+.p-dialog .p-dialog-header {
+  border-top-left-radius: var(--p-border-radius);
+  border-top-right-radius: var(--p-border-radius);
+}

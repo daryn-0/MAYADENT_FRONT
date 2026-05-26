@@ -1,0 +1,519 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<p-card header="Gestión de Citas">
+  
+  <!-- Filtro de estado -->
+  <div class="mb-4">
+    <div class="flex align-items-center gap-3">
+      <label for="filtroEstado" class="font-semibold">Mostrar:</label>
+      <p-select 
+        id="filtroEstado"
+        [options]="opcionesFiltroEstado" 
+        [(ngModel)]="filtroEstadoCita" 
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="onFiltroEstadoChange()"
+        class="w-auto">
+      </p-select>
+      <span class="text-sm text-gray-600">
+        ({{citasFiltradas.length}} de {{todasLasCitas.length}} citas)
+      </span>
+    </div>
+  </div>
+  
+  <!-- Tabla de Citas -->
+  <p-table 
+    #dt
+    [value]="citasFiltradas" 
+    styleClass="p-datatable-striped" 
+    [rows]="10" 
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['fecha_cita','paciente.nombre','paciente.apellido','estadoCita.nombre','estado']"
+    selectionMode="single" 
+    [(selection)]="selectedCita" 
+    (onRowSelect)="onRowSelect($event)"
+    dataKey="id"
+    [tableStyle]="{'min-width': '75rem'}"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} citas"
+    [showCurrentPageReport]="true">
+    
+    <ng-template pTemplate="caption">
+      <div class="flex align-items-center justify-content-between">
+        <h5 class="m-0">
+          <span *ngIf="filtroEstadoCita === 'todas'">Todas las Citas</span>
+          <span *ngIf="filtroEstadoCita === 'activo'">Citas Activas</span>
+          <span *ngIf="filtroEstadoCita === 'inactivo'">Citas Inactivas</span>
+        </h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            (input)="$any($event.target) && dt.filterGlobal($any($event.target).value, 'contains')" 
+            placeholder="Buscar..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="fecha_cita" style="width:12%">
+          Fecha <p-sortIcon field="fecha_cita"></p-sortIcon>
+        </th>
+        <th pSortableColumn="hora_cita" style="width:10%">
+          Hora <p-sortIcon field="hora_cita"></p-sortIcon>
+        </th>
+        <th pSortableColumn="paciente.nombre" style="width:22%">
+          Paciente <p-sortIcon field="paciente.nombre"></p-sortIcon>
+        </th>
+        <th style="width:25%">Doctor(es)</th>
+        <th pSortableColumn="estadoCita.nombre" style="width:15%">
+          Estado Cita <p-sortIcon field="estadoCita.nombre"></p-sortIcon>
+        </th>
+        <th pSortableColumn="estado" style="width:11%">
+          Estado <p-sortIcon field="estado"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-cita>
+      <tr [pSelectableRow]="cita">
+        <td>{{formatearFechaDisplay(cita.fecha_cita)}}</td>
+        <td>{{cita.hora_cita}}</td>
+        <td>
+          <div class="flex flex-column">
+            <span class="font-semibold">{{cita.paciente?.nombre}} {{cita.paciente?.apellido}}</span>
+            <span class="text-sm text-gray-600">DNI: {{cita.paciente?.dni}}</span>
+          </div>
+        </td>
+        <td>
+          <span class="text-sm">{{obtenerDoctoresDeCita(cita)}}</span>
+        </td>
+        <td>
+          <p-tag 
+            [value]="cita.estadoCita?.nombre || 'Sin estado'" 
+            [severity]="getSeverityEstadoCita(cita.estadoCita?.nombre || '')">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag 
+            [value]="cita.estado" 
+            [severity]="cita.estado === 'Activo' ? 'success' : 'danger'">
+          </p-tag>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center">No se encontraron citas</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</p-card>
+
+<!-- Diálogo de Acciones -->
+<p-dialog 
+  header="Acciones para la Cita" 
+  [(visible)]="displayAccionesDialog" 
+  [modal]="true" 
+  [style]="{width: '450px'}"
+  (onHide)="onAccionesDialogHide()">
+  
+  <div *ngIf="selectedCita" class="mb-3">
+    <p><strong>Fecha:</strong> {{formatearFechaDisplay(selectedCita.fecha_cita)}} - {{selectedCita.hora_cita}}</p>
+    <p><strong>Paciente:</strong> {{selectedCita.paciente?.nombre}} {{selectedCita.paciente?.apellido}}</p>
+  </div>
+
+  <div class="flex flex-column gap-3 mt-3">
+    <button 
+      pButton 
+      pRipple 
+      label="Gestionar Tratamientos" 
+      icon="pi pi-list" 
+      class="p-button-primary w-full" 
+      (click)="abrirDialogTratamientos()">
+    </button>
+    <button 
+      pButton 
+      pRipple 
+      label="Cambiar Estado de Cita" 
+      icon="pi pi-calendar-clock" 
+      class="p-button-success w-full" 
+      (click)="abrirDialogCambiarEstadoCita()">
+    </button>
+    <button 
+      pButton 
+      pRipple 
+      label="Editar Cita" 
+      icon="pi pi-pencil" 
+      class="p-button-info w-full" 
+      (click)="abrirDialogEditar()">
+    </button>
+    <button 
+      pButton 
+      pRipple 
+      label="Cambiar Estado (Activo/Inactivo)" 
+      icon="pi pi-sync" 
+      class="p-button-warning w-full" 
+      (click)="confirmarCambioEstado()">
+    </button>
+    <button 
+      pButton 
+      pRipple 
+      label="Eliminar Cita (Permanente)" 
+      icon="pi pi-trash" 
+      class="p-button-danger w-full" 
+      (click)="confirmarEliminar()">
+    </button>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      pRipple 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      class="p-button-text" 
+      (click)="displayAccionesDialog = false">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Diálogo de Formulario para Editar -->
+<p-dialog 
+  header="Editar Cita" 
+  [(visible)]="displayFormDialog" 
+  [modal]="true" 
+  [style]="{width: '600px'}">
+  
+  <form #citaForm="ngForm" class="p-fluid">
+    <div class="flex flex-column gap-4 pt-4">
+      
+      <!-- Fecha -->
+      <div class="flex flex-column gap-2">
+        <label for="fecha">Fecha de la Cita *</label>
+        <p-datepicker 
+          id="fecha"
+          [(ngModel)]="citaParaForm.fecha_cita" 
+          name="fecha"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          placeholder="Seleccione una fecha"
+          class="w-full"
+          required>
+        </p-datepicker>
+      </div>
+
+      <!-- Hora -->
+      <div class="flex flex-column gap-2">
+        <label for="hora">Hora de la Cita *</label>
+        <input 
+          id="hora"
+          type="time"
+          [(ngModel)]="citaParaForm.hora_cita" 
+          name="hora"
+          class="p-inputtext w-full"
+          required>
+      </div>
+
+      <!-- Paciente -->
+      <div class="flex flex-column gap-2">
+        <label for="paciente">Paciente *</label>
+        <p-select 
+          id="paciente"
+          [options]="pacientesActivos" 
+          [(ngModel)]="citaParaForm.paciente" 
+          name="paciente"
+          placeholder="Buscar paciente"
+          [filter]="true"
+          filterBy="nombre,apellido,dni"
+          [showClear]="true"
+          optionLabel="nombre"
+          dataKey="id"
+          class="w-full"
+          appendTo="body"
+          required>
+            <ng-template pTemplate="selectedItem">
+              <div *ngIf="citaParaForm.paciente">
+                {{citaParaForm.paciente.nombre}} {{citaParaForm.paciente.apellido}}
+              </div>
+            </ng-template>
+            <ng-template let-paciente pTemplate="item">
+              <div>
+                <div class="font-semibold">{{paciente.nombre}} {{paciente.apellido}}</div>
+                <div class="text-sm text-gray-600">DNI: {{paciente.dni}}</div>
+              </div>
+            </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Descripción -->
+      <div class="flex flex-column gap-2">
+        <label for="descripcion">Descripción (Opcional)</label>
+        <textarea 
+          id="descripcion"
+          [(ngModel)]="citaParaForm.descripcion" 
+          name="descripcion"
+          class="p-inputtext w-full"
+          rows="3"
+          style="resize: vertical;">
+        </textarea>
+      </div>
+
+    </div>
+  </form>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      pRipple 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      class="p-button-text" 
+      (click)="displayFormDialog = false">
+    </button>
+    <button 
+      pButton 
+      pRipple 
+      label="Guardar Cambios" 
+      icon="pi pi-check" 
+      (click)="guardarCita()" 
+      [disabled]="!citaForm.form.valid">
+    </button>
+  </ng-template>
+    
+</p-dialog>
+
+<!-- Diálogo para Cambiar Estado de Cita -->
+<p-dialog 
+  header="Cambiar Estado de la Cita" 
+  [(visible)]="displayCambiarEstadoCitaDialog" 
+  [modal]="true" 
+  [style]="{width: '450px'}">
+  
+  <div *ngIf="citaParaCambiarEstado" class="mb-4">
+    <p><strong>Fecha:</strong> {{formatearFechaDisplay(citaParaCambiarEstado.fecha_cita)}} - {{citaParaCambiarEstado.hora_cita}}</p>
+    <p><strong>Paciente:</strong> {{citaParaCambiarEstado.paciente?.nombre}} {{citaParaCambiarEstado.paciente?.apellido}}</p>
+    <p><strong>Estado actual:</strong> 
+      <p-tag 
+        [value]="citaParaCambiarEstado.estadoCita?.nombre || 'Sin estado'" 
+        [severity]="getSeverityEstadoCita(citaParaCambiarEstado.estadoCita?.nombre || '')">
+      </p-tag>
+    </p>
+  </div>
+
+  <div *ngIf="obtenerEstadosPermitidos().length > 0" class="flex flex-column gap-2">
+    <label for="nuevoEstadoCita">Nuevo Estado *</label>
+    <p-select 
+      id="nuevoEstadoCita"
+      [options]="obtenerEstadosPermitidos()" 
+      [(ngModel)]="estadoCitaSeleccionado" 
+      name="nuevoEstadoCita"
+      placeholder="Seleccione un estado"
+      optionLabel="nombre"
+      dataKey="id"
+      class="w-full"
+      appendTo="body">
+        <ng-template pTemplate="selectedItem">
+          <div *ngIf="estadoCitaSeleccionado">
+            <p-tag 
+              [value]="estadoCitaSeleccionado.nombre" 
+              [severity]="getSeverityEstadoCita(estadoCitaSeleccionado.nombre)">
+            </p-tag>
+          </div>
+        </ng-template>
+        <ng-template let-estado pTemplate="item">
+          <p-tag 
+            [value]="estado.nombre" 
+            [severity]="getSeverityEstadoCita(estado.nombre)">
+          </p-tag>
+        </ng-template>
+    </p-select>
+  </div>
+
+  <div *ngIf="obtenerEstadosPermitidos().length === 0" class="p-3 bg-yellow-50 border-round">
+    <div class="flex align-items-center gap-2">
+      <i class="pi pi-info-circle text-yellow-600"></i>
+      <span class="text-yellow-800">
+        El estado "{{citaParaCambiarEstado?.estadoCita?.nombre}}" es final y no puede ser modificado.
+      </span>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      pRipple 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      class="p-button-text" 
+      (click)="displayCambiarEstadoCitaDialog = false">
+    </button>
+    <button 
+      pButton 
+      pRipple 
+      label="Guardar" 
+      icon="pi pi-check" 
+      (click)="guardarCambioEstadoCita()"
+      [disabled]="!estadoCitaSeleccionado">
+    </button>
+  </ng-template>
+    
+</p-dialog>
+
+
+<!-- Diálogo para Gestionar Tratamientos -->
+<p-dialog 
+  header="Gestionar Tratamientos de la Cita" 
+  [(visible)]="displayTratamientosDialog" 
+  [modal]="true" 
+  [style]="{width: '800px'}"
+  (onHide)="onTratamientosDialogHide()">
+  
+  <div *ngIf="citaParaTratamientos" class="mb-4">
+    <div class="grid">
+      <div class="col-6">
+        <strong>Fecha:</strong> {{formatearFechaDisplay(citaParaTratamientos.fecha_cita)}} - {{citaParaTratamientos.hora_cita}}
+      </div>
+      <div class="col-6">
+        <strong>Paciente:</strong> {{citaParaTratamientos.paciente?.nombre}} {{citaParaTratamientos.paciente?.apellido}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Agregar nuevo tratamiento -->
+  <div class="mb-4 p-3 border-1 surface-border border-round">
+    <h4 class="mt-0">Agregar Tratamiento</h4>
+    <div class="grid gap-3">
+      <div class="col-12 md:col-6">
+        <div class="flex flex-column gap-2">
+          <label for="nuevoTratamiento">Tratamiento</label>
+          <p-select 
+            id="nuevoTratamiento"
+            [options]="tratamientosActivos" 
+            [(ngModel)]="nuevoTratamiento" 
+            name="nuevoTratamiento"
+            placeholder="Buscar tratamiento"
+            [filter]="true"
+            filterBy="nombre"
+            [showClear]="true"
+            optionLabel="nombre"
+            dataKey="id"
+            class="w-full"
+            appendTo="body"
+            [disabled]="tratamientosCita.length >= 3"
+            (onChange)="onTratamientoSeleccionado($event)">
+              <ng-template pTemplate="selectedItem">
+                <div *ngIf="nuevoTratamiento">
+                  {{nuevoTratamiento.nombre}}
+                </div>
+              </ng-template>
+              <ng-template let-tratamiento pTemplate="item">
+                <div>
+                  <div class="font-semibold">{{tratamiento.nombre}}</div>
+                  <div class="text-sm text-gray-600">Costo base: S/ {{tratamiento.costo_base | number:'1.2-2'}}</div>
+                </div>
+              </ng-template>
+          </p-select>
+        </div>
+      </div>
+      <div class="col-12 md:col-4">
+        <div class="flex flex-column gap-2">
+          <label for="nuevoCosto">Costo Final (S/.)</label>
+          <p-inputNumber 
+            id="nuevoCosto"
+            [(ngModel)]="nuevoCosto" 
+            name="nuevoCosto"
+            mode="currency" 
+            currency="PEN" 
+            locale="es-PE"
+            [minFractionDigits]="2"
+            [min]="0"
+            class="w-full">
+          </p-inputNumber>
+        </div>
+      </div>
+      <div class="col-12 md:col-2 flex align-items-end">
+        <button 
+          pButton 
+          pRipple 
+          label="Agregar" 
+          icon="pi pi-plus" 
+          class="p-button-success w-full"
+          [disabled]="tratamientosCita.length >= 3"
+          (click)="agregarTratamientoCita()">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de tratamientos -->
+  <p-table [value]="tratamientosCita" styleClass="p-datatable-sm">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:40%">Tratamiento</th>
+        <th style="width:25%">Doctor</th>
+        <th style="width:20%" class="text-right">Costo</th>
+        <th style="width:15%" class="text-center">Acciones</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-ct>
+      <tr>
+        <td>{{ct.tratamiento?.nombre}}</td>
+        <td>
+          <span *ngIf="ct.tratamiento?.doctor">
+            {{ct.tratamiento.doctor.nombre}} {{ct.tratamiento.doctor.apellido}}
+          </span>
+          <span *ngIf="!ct.tratamiento?.doctor" class="text-gray-500">Sin asignar</span>
+        </td>
+        <td class="text-right">S/ {{ct.costo_final | number:'1.2-2'}}</td>
+        <td class="text-center">
+          <button 
+            pButton 
+            pRipple 
+            icon="pi pi-trash" 
+            class="p-button-rounded p-button-danger p-button-text"
+            pTooltip="Eliminar"
+            tooltipPosition="top"
+            [disabled]="tratamientosCita.length <= 1"
+            (click)="eliminarTratamientoCita(ct)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <tr>
+        <td colspan="2" class="text-right font-bold">Total:</td>
+        <td class="text-right font-bold text-primary text-xl">
+          S/ {{calcularTotalCita() | number:'1.2-2'}}
+        </td>
+        <td></td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4" class="text-center">
+          <div class="py-4">
+            <i class="pi pi-inbox" style="font-size: 2rem; color: var(--text-color-secondary)"></i>
+            <p class="mt-2">No hay tratamientos asociados a esta cita</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      pRipple 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      class="p-button-text"
+      (click)="displayTratamientosDialog = false">
+    </button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,78 @@
+<div class="inicio-container">
+
+  <!-- Título de la página -->
+  <h2 class="page-title">Panel de Administración General</h2>
+  <p class="page-subtitle">Seleccione un módulo para comenzar a gestionar.</p>
+
+  <!-- Grilla de PrimeFlex para las tarjetas 
+       'grid': Activa la grilla
+       'md:grid-col-2': En pantallas medianas (tablets), 2 columnas
+       'lg:grid-col-3': En pantallas grandes (desktop), 3 columnas (dejamos espacio para 'Citas' a futuro)
+       'gap-5': Añade un espaciado grande (gap) entre las tarjetas
+  -->
+  <div class="grid md:grid-col-2 lg:grid-col-3 gap-5 justify-content-center">
+
+    <!-- Tarjeta 1: Gestión de Doctores -->
+    <div class="col-12 md:col-6 lg:col-4">
+      <a routerLink="/doctores" class="card-link">
+        <p-card class="inicio-card">
+          
+          <!-- Template para el HEADER (Icono) -->
+          <ng-template pTemplate="header">
+            <div class="card-icon-wrapper">
+              <i class="pi pi-user card-icon"></i>
+            </div>
+          </ng-template>
+
+          <!-- Template para el CONTENT (Título y Descripción) -->
+          <ng-template pTemplate="content">
+            <h3 class="card-title">Gestión de Doctores</h3>
+            <p class="card-description">
+              Administrar el personal médico, sus especialidades y horarios.
+            </p>
+          </ng-template>
+
+          <!-- Template para el FOOTER (Botón) -->
+          <ng-template pTemplate="footer">
+            <div class="card-footer">
+              <span>Gestionar</span>
+              <i class="pi pi-arrow-right"></i>
+            </div>
+          </ng-template>
+        </p-card>
+      </a>
+    </div>
+
+    <!-- Tarjeta 2: Gestión de Tratamientos -->
+    <div class="col-12 md:col-6 lg:col-4">
+      <a routerLink="/tratamientos/gestion" class="card-link"> <!-- Asumiendo esta ruta -->
+        <p-card class="inicio-card">
+          
+          <ng-template pTemplate="header">
+            <div class="card-icon-wrapper">
+              <i class="pi pi-book card-icon"></i>
+            </div>
+          </ng-template>
+
+          <ng-template pTemplate="content">
+            <h3 class="card-title">Gestión de Tratamientos</h3>
+            <p class="card-description">
+              Definir los servicios, costos y doctores asociados a cada tratamiento.
+            </p>
+          </ng-template>
+
+          <ng-template pTemplate="footer">
+            <div class="card-footer">
+              <span>Gestionar</span>
+              <i class="pi pi-arrow-right"></i>
+            </div>
+          </ng-template>
+        </p-card>
+      </a>
+    </div>
+
+    <!-- Puedes añadir más tarjetas (ej. Pacientes) aquí -->
+
+  </div>
+</div>
+

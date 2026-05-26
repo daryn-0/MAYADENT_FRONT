@@ -1,0 +1,117 @@
+/* Contenedor principal para centrar todo */
+.inicio-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Títulos de la página */
+.page-title {
+  /* Usamos tu color "Navy" */
+  color: var(--p-secondary-color, #2F4156);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.page-subtitle {
+  color: var(--p-text-color-secondary, #6c757d);
+  margin-bottom: 3rem;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Estilo de la tarjeta <p-card> 
+  Cambiamos el display a 'flex' para controlar la altura
+*/
+.inicio-card {
+  border: 1px solid var(--p-surface-border, #dfe7ef);
+  border-radius: var(--p-border-radius-xl, 12px);
+  /* Sombra sutil para despegarla del fondo */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  height: 100%; /* Hacemos que todas las tarjetas tengan la misma altura */
+  display: flex;
+  flex-direction: column; /* Apilamos header, content y footer */
+}
+
+/* Quita la decoración de texto del link */
+.card-link {
+  text-decoration: none;
+}
+
+/* Contenedor del icono */
+.card-icon-wrapper {
+  padding: 2.5rem 2rem 1.5rem 2rem;
+  text-align: center;
+}
+
+.card-icon {
+  /* Usamos tu color "Teal" */
+  color: var(--p-primary-color, #567C8D);
+  font-size: 3.5rem; /* Icono grande */
+}
+
+/* Título de la tarjeta */
+.card-title {
+  /* Usamos tu color "Navy" */
+  color: var(--p-secondary-color, #2F4156);
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+/* Descripción de la tarjeta */
+.card-description {
+  color: var(--p-text-color-secondary, #6c757d);
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  /* Hacemos que la descripción ocupe el espacio sobrante */
+  flex-grow: 1; 
+  padding: 0 1.5rem;
+}
+
+/* Pie de la tarjeta (footer) */
+.card-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  /* Usamos tu color "Teal" */
+  color: var(--p-primary-color, #567C8D);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.card-footer i {
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+/*
+  ==================================
+  Efecto HOVER (¡La parte divertida!)
+  ==================================
+*/
+
+.inicio-card:hover {
+  /* Al pasar el mouse, la sombra se hace más pronunciada */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  /* El borde cambia a tu color "Teal" */
+  border-color: var(--p-primary-color-light, #a4b9c4);
+  transform: translateY(-5px); /* Se eleva sutilmente */
+}
+
+.inicio-card:hover .card-footer {
+  /* Usamos tu color "Navy" */
+  color: var(--p-secondary-color, #2F4156);
+}
+
+.inicio-card:hover .card-footer i {
+  transform: translateX(5px); /* La flecha se mueve */
+}
+
