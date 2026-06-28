@@ -1,4 +1,4 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 
 <div class="container mx-auto p-4">
   <p-card header="Lista de Citas">
@@ -36,7 +36,8 @@
           optionLabel="label"
           optionValue="value"
           (onChange)="onFiltroDoctorChange()"
-          class="w-auto min-w-[200px]">
+          class="w-auto min-w-[200px]"
+          appendTo="body">
         </p-select>
         <span class="text-sm text-gray-600">
           ({{citasFiltradas.length}} de {{citasActivas.length}} citas)
@@ -77,20 +78,13 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="fecha_cita" style="width:12%">
-            Fecha <p-sortIcon field="fecha_cita"></p-sortIcon>
-          </th>
-          <th pSortableColumn="hora_cita" style="width:10%">
-            Hora <p-sortIcon field="hora_cita"></p-sortIcon>
-          </th>
-          <th pSortableColumn="paciente.nombre" style="width:20%">
-            Paciente <p-sortIcon field="paciente.nombre"></p-sortIcon>
-          </th>
-          <th style="width:20%">Doctor(es)</th>
-          <th style="width:25%">Descripción</th>
-          <th pSortableColumn="estadoCita.nombre" style="width:10%">
-            Estado <p-sortIcon field="estadoCita.nombre"></p-sortIcon>
-          </th>
+          <th style="width:12%">Fecha</th>
+          <th style="width:10%">Hora</th>
+          <th style="width:20%">Paciente</th>
+          <th style="width:18%">Doctor(es)</th>
+          <th style="width:20%">Descripción</th>
+          <th style="width:10%" class="text-right">Precio Final</th>
+          <th style="width:10%">Estado</th>
           <th style="width:3%">Acciones</th>
         </tr>
       </ng-template>
@@ -113,6 +107,7 @@
           <td>
             <span class="text-sm">{{cita.descripcion || 'Sin descripción'}}</span>
           </td>
+          <td class="text-right font-semibold">S/ {{obtenerTotalCita(cita) | number:'1.2-2'}}</td>
           <td>
             <p-tag 
               [value]="cita.estadoCita?.nombre || 'Sin estado'" 
@@ -135,7 +130,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7" class="text-center">
+          <td colspan="8" class="text-center">
             <div class="flex flex-column align-items-center gap-3 py-5">
               <i class="pi pi-calendar-times" style="font-size: 3rem; color: var(--text-color-secondary)"></i>
               <span class="text-xl">No se encontraron citas activas</span>
@@ -225,3 +220,5 @@
     </button>
   </ng-template>
 </p-dialog>
+
+

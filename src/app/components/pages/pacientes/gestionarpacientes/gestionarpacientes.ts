@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms'; // Para ngModel y ngForm
 import { CardModule } from 'primeng/card';
@@ -45,6 +45,7 @@ export class Gestionarpacientes implements OnInit {
 
   // --- Diálogo de Edición (Funcionalidad existente) ---
   public pacienteParaEditar: Paciente = new Paciente();
+  public fechaMaxima: Date = new Date(); // Bloquea fechas futuras
   public displayEditDialog: boolean = false;
   public generos = [{ label: 'Masculino', value: 'Masculino' }, { label: 'Femenino', value: 'Femenino' }];
   @ViewChild('editForm') public editForm!: NgForm;
@@ -119,7 +120,7 @@ export class Gestionarpacientes implements OnInit {
     // Convertir fecha de string (del JSON) a objeto Date (para el DatePicker)
     this.pacienteParaEditar = {
       ...this.pacienteEncontrado,
-      fecha_nacimiento: new Date(this.pacienteEncontrado.fecha_nacimiento)
+      fecha_nacimiento: this.parsearFechaLocal(this.pacienteEncontrado.fecha_nacimiento as any)
     };
     
     this.displayEditDialog = true;
@@ -161,7 +162,7 @@ export class Gestionarpacientes implements OnInit {
     // Formatear la fecha a YYYY-MM-DD antes de enviar al backend
     const pacienteAEnviar: Paciente = {
       ...this.pacienteParaEditar,
-      fecha_nacimiento: new Date(this.pacienteParaEditar.fecha_nacimiento).toISOString().split('T')[0] as any
+      fecha_nacimiento: this.formatearFecha(this.pacienteParaEditar.fecha_nacimiento) as any
     };
 
     this.pacienteService.updatePaciente(pacienteAEnviar.id!, pacienteAEnviar).subscribe({
@@ -192,7 +193,7 @@ export class Gestionarpacientes implements OnInit {
     };
 
     this.confirmationService.confirm({
-      message: `¿Está seguro de cambiar el estado a ${nuevoEstado}?`,
+      message: `Â¿Está seguro de cambiar el estado a ${nuevoEstado}?`,
       header: 'Confirmar Cambio de Estado',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, cambiar',
@@ -219,7 +220,7 @@ export class Gestionarpacientes implements OnInit {
     const idPaciente = this.pacienteEncontrado.id!;
 
     this.confirmationService.confirm({
-      message: '¿Está seguro de ELIMINAR PERMANENTEMENTE a este paciente? Esta acción no se puede deshacer.',
+      message: 'Â¿Está seguro de ELIMINAR PERMANENTEMENTE a este paciente? Esta acción no se puede deshacer.',
       header: 'Confirmar Eliminación',
       icon: 'pi pi-trash',
       acceptLabel: 'Sí, eliminar',
@@ -249,8 +250,23 @@ export class Gestionarpacientes implements OnInit {
   /**
    * Muestra un toast (notificación).
    */
+
+  formatearFecha(fecha: Date | string): string {
+    if (typeof fecha === 'string') return fecha.split('T')[0];
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  parsearFechaLocal(fechaString: string): Date {
+    const [year, month, day] = fechaString.split('T')[0].split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   private showToast(severity: 'success' | 'info' | 'warn' | 'error', summary: string, detail: string): void {
     this.messageService.add({ severity, summary, detail });
   }
 }
+
 

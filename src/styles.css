@@ -63,3 +63,28 @@ body {
   border-top-left-radius: var(--p-border-radius);
   border-top-right-radius: var(--p-border-radius);
 }
+
+/* Fix global para overlays de PrimeNG - previene cortes en dropdowns, calendarios, etc. */
+.p-overlay {
+  z-index: 1100 !important;
+}
+
+.p-datepicker-panel {
+  z-index: 1100 !important;
+}
+
+.p-select-overlay {
+  z-index: 1100 !important;
+}
+
+/* Evitar overflow hidden en diálogos que corten contenido */
+.p-dialog-content {
+  overflow: visible !important;
+}
+
+/* Asegurar que los componentes appendTo="body" funcionen correctamente */
+body > .p-overlay,
+body > .p-datepicker-panel,
+body > .p-select-overlay {
+  z-index: 9999 !important;
+}

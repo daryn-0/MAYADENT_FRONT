@@ -1,4 +1,4 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
 <p-card header="Gestión de Inventario">
@@ -11,9 +11,6 @@
     [paginator]="true"
     [rowsPerPageOptions]="[10, 25, 50]"
     [globalFilterFields]="['nombre','descripcion']"
-    selectionMode="single" 
-    [(selection)]="selectedInventario" 
-    (onRowSelect)="onRowSelect($event)"
     dataKey="id"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} items"
     [showCurrentPageReport]="true">
@@ -34,18 +31,18 @@
 
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+        <th>Nombre</th>
         <th>Descripción</th>
-        <th pSortableColumn="cantidad">Stock <p-sortIcon field="cantidad"></p-sortIcon></th>
+        <th>Stock</th>
         <th>Unidad</th>
         <th>Costo</th>
         <th>Vencimiento</th>
-        <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+        <th>Estado</th>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-item>
-      <tr [pSelectableRow]="item">
+      <tr (click)="onRowSelect({ data: item })" class="cursor-pointer">
         <td><span class="font-semibold">{{item.nombre}}</span></td>
         <td><span class="text-sm">{{item.descripcion || 'Sin descripción'}}</span></td>
         <td>
@@ -130,7 +127,7 @@
 
       <div class="flex flex-column gap-2">
         <label for="vencimiento">Fecha de Vencimiento</label>
-        <p-datepicker id="vencimiento" [(ngModel)]="inventarioParaForm.fecha_vencimiento" name="vencimiento" dateFormat="dd/mm/yy" [showIcon]="true"></p-datepicker>
+        <p-datepicker id="vencimiento" [(ngModel)]="inventarioParaForm.fecha_vencimiento" name="vencimiento" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body"></p-datepicker>
       </div>
 
     </div>
@@ -142,3 +139,4 @@
   </ng-template>
     
 </p-dialog>
+

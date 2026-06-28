@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -371,8 +371,11 @@ export class Calendariocitas implements OnInit {
 
   formatearFechaParaComparar(fecha: Date | string): string {
     if (!fecha) return '';
-    const date = typeof fecha === 'string' ? this.parsearFechaLocal(fecha) : fecha;
-    return date.toISOString().split('T')[0];
+    if (typeof fecha === 'string') return fecha.split('T')[0];
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   parsearFechaLocal(fecha: Date | string): Date {

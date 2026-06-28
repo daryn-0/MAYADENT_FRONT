@@ -184,6 +184,11 @@ export class Listacitas implements OnInit {
     return doctores.size > 0 ? Array.from(doctores).join(', ') : 'Sin asignar';
   }
 
+  obtenerTotalCita(cita: Cita): number {
+    const tratamientos = cita.tratamientos || [];
+    return tratamientos.reduce((total, ct) => total + (ct.costo_final || 0), 0);
+  }
+
   obtenerEtiquetaFiltroDoctor(): string {
     return this.opcionesFiltroDoctor.find(opcion => opcion.value === this.filtroDoctor)?.label || 'Doctor seleccionado';
   }

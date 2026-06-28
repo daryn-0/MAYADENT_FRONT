@@ -1,4 +1,4 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
 <p-card header="Gestión de Doctores">
@@ -16,24 +16,21 @@
     [rows]="5" 
     [paginator]="true"
     [globalFilterFields]="['nombre','apellido','correo']"
-    selectionMode="single" 
-    [(selection)]="selectedDoctor" 
-    (onRowSelect)="onRowSelect($event)"
     dataKey="id"
     [tableStyle]="{'min-width': '50rem'}"
   >
     <ng-template pTemplate="header">
       <tr>
         <!-- Columna ID eliminada -->
-        <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
-        <th pSortableColumn="apellido">Apellido <p-sortIcon field="apellido"></p-sortIcon></th>
+        <th>Nombre</th>
+        <th>Apellido</th>
         <th>Teléfono</th>
         <th>Correo</th>
-        <th pSortableColumn="estado" style="width:15%">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+        <th style="width:15%">Estado</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-doctor>
-      <tr [pSelectableRow]="doctor">
+      <tr (click)="onRowSelect({ data: doctor })" class="cursor-pointer">
         <!-- Columna ID eliminada -->
         <td>{{doctor.nombre}}</td>
         <td>{{doctor.apellido}}</td>

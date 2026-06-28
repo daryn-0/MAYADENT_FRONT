@@ -8,6 +8,8 @@ export class HistorialClinico {
   fecha_emision: Date | string;
   monto_total: number;
   estado: EstadoHistorialClinico;
+  notas: string;
+  diagnostico: string;
   paciente: Paciente | null;
   cita: Cita | null;
 
@@ -16,6 +18,8 @@ export class HistorialClinico {
     fecha_emision: Date | string = new Date(),
     monto_total: number = 0,
     estado: EstadoHistorialClinico = 'Activo',
+    notas: string = '',
+    diagnostico: string = '',
     paciente: Paciente | null = null,
     cita: Cita | null = null
   ) {
@@ -23,6 +27,8 @@ export class HistorialClinico {
     this.fecha_emision = fecha_emision;
     this.monto_total = monto_total;
     this.estado = estado;
+    this.notas = notas;
+    this.diagnostico = diagnostico;
     this.paciente = paciente;
     this.cita = cita;
   }

@@ -1,4 +1,4 @@
-<p-toast position="top-right"></p-toast>
+﻿<p-toast position="top-right"></p-toast>
 
 <div class="flex justify-content-center mt-4">
     <p-card header="REGISTRAR NUEVO PACIENTE" class="p-m-4 p-p-4 w-full md:w-6 lg:w-4">
@@ -42,7 +42,8 @@
                 <div class="flex flex-col md:flex-row gap-8 justify-center">
                     <p-floatlabel>
                         <p-datepicker [(ngModel)]="paciente.fecha_nacimiento" inputId="fechaNacimiento"
-                            name="fechaNacimiento" showIcon iconDisplay="input" [readonlyInput]="true">
+                            name="fechaNacimiento" showIcon iconDisplay="input" [readonlyInput]="true"
+                            [maxDate]="fechaMaxima" appendTo="body">
                         </p-datepicker>
                         <label for="fechaNacimiento">Fecha de Nacimiento</label>
                     </p-floatlabel>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -36,6 +36,7 @@ import { MessageService } from 'primeng/api'; // 3. Servicio para *mostrar* noti
 })
 export class RegistroPacientes {
   paciente: Paciente = new Paciente();
+  fechaMaxima: Date = new Date(); // Bloquea fechas futuras (máximo hoy)
 
   constructor(
     private pacienteService: PacienteService,
@@ -72,7 +73,7 @@ export class RegistroPacientes {
 
         // Formatear fecha
         const fechaFormateada = this.paciente.fecha_nacimiento
-          ? new Date(this.paciente.fecha_nacimiento).toISOString().split('T')[0]
+          ? this.formatearFecha(this.paciente.fecha_nacimiento)
           : null;
 
         // Crear objeto a enviar
@@ -82,12 +83,12 @@ export class RegistroPacientes {
           fecha_nacimiento: fechaFormateada as unknown as Date
         };
 
-        console.log('📦 Enviando al backend:', pacienteAEnviar);
+        console.log('ðŸ“¦ Enviando al backend:', pacienteAEnviar);
 
         // Llamar al backend
         this.pacienteService.createPaciente(pacienteAEnviar).subscribe({
           next: (response) => {
-            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Paciente registrado con éxito' });
+            this.messageService.add({ severity: 'success', summary: 'ÉXITO', detail: 'Paciente registrado con éxito' });
             this.paciente = new Paciente(); // Limpiamos el modelo
           },
           error: (error) => {
@@ -99,4 +100,13 @@ export class RegistroPacientes {
       }
     });
   }
+
+  formatearFecha(fecha: Date | string): string {
+    if (typeof fecha === 'string') return fecha.split('T')[0];
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 }
+

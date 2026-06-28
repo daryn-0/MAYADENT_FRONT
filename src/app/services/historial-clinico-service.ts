@@ -35,7 +35,10 @@ export class HistorialClinicoService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  createHistorialPorCita(citaId: number): Observable<HistorialClinico> {
-    return this.http.post<HistorialClinico>(`${this.apiUrl}/cita/${citaId}`, {});
+  createHistorialPorCita(citaId: number, montoTotal?: number, notas?: string): Observable<HistorialClinico> {
+    return this.http.post<HistorialClinico>(`${this.apiUrl}/cita/${citaId}`, {
+      monto_total: montoTotal,
+      notas: notas || ''
+    });
   }
 }

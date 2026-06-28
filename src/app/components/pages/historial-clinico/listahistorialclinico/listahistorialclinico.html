@@ -1,54 +1,161 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 
-<p-card header="Listado de Historiales Clínicos" styleClass="p-card-shadow border-round-lg">
+<!-- Tabla principal: pacientes -->
+<p-card header="Listado de Historiales Clínicos">
+
+  <div class="flex align-items-center gap-3 mb-4">
+    <span class="p-input-icon-left flex-1">
+      <i class="pi pi-user"></i>
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="filtroPaciente"
+        (ngModelChange)="filtrarPorPaciente()"
+        placeholder="Filtrar por nombre o DNI..."
+        class="w-full" />
+    </span>
+    @if (filtroPaciente) {
+      <button pButton icon="pi pi-times" class="p-button-text p-button-secondary"
+        (click)="filtroPaciente = ''; filtrarPorPaciente()" pTooltip="Limpiar filtro">
+      </button>
+    }
+  </div>
+
   <p-table
-    #dt
-    [value]="historiales"
+    [value]="pacientesFiltrados"
     [loading]="loading"
-    styleClass="p-datatable-striped"
+    styleClass="p-datatable-striped p-datatable-hoverable-rows"
     [rows]="10"
     [paginator]="true"
     [rowsPerPageOptions]="[10, 25, 50]"
-    [globalFilterFields]="['paciente.nombre','paciente.apellido','paciente.dni','cita.paciente.nombre','cita.paciente.apellido','cita.paciente.dni','estado']"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} historiales"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} pacientes"
     [showCurrentPageReport]="true">
-
-    <ng-template pTemplate="caption">
-      <div class="flex align-items-center justify-content-between">
-        <h5 class="m-0">Historiales Clínicos Activos</h5>
-        <span class="p-input-icon-left">
-          <i class="pi pi-search"></i>
-          <input pInputText type="text" (input)="$any($event.target) && dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
-        </span>
-      </div>
-    </ng-template>
 
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="fecha_emision">Fecha Emisión <p-sortIcon field="fecha_emision"></p-sortIcon></th>
         <th>Paciente</th>
         <th>DNI</th>
-        <th>Fecha Cita</th>
-        <th class="text-right">Monto Total</th>
-        <th>Estado</th>
+        <th class="text-center">N° Historiales</th>
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-historial>
-      <tr>
-        <td>{{formatearFecha(historial.fecha_emision)}}</td>
-        <td>{{obtenerPaciente(historial)}}</td>
-        <td>{{obtenerDni(historial)}}</td>
-        <td>{{obtenerFechaCita(historial)}}</td>
-        <td class="text-right">S/ {{historial.monto_total | number:'1.2-2'}}</td>
-        <td><p-tag [value]="historial.estado" [severity]="historial.estado === 'Activo' ? 'success' : 'danger'"></p-tag></td>
+    <ng-template pTemplate="body" let-item>
+      <tr (click)="seleccionarPaciente(item)" class="cursor-pointer">
+        <td class="font-semibold">{{item.paciente.nombre}} {{item.paciente.apellido}}</td>
+        <td>{{item.paciente.dni}}</td>
+        <td class="text-center">
+          <p-tag [value]="item.historiales.length.toString()" severity="info"></p-tag>
+        </td>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="text-center">No se encontraron historiales clínicos</td>
+        <td colspan="3" class="text-center">
+          {{ filtroPaciente ? 'No se encontraron pacientes para "' + filtroPaciente + '"' : 'No hay historiales clínicos' }}
+        </td>
       </tr>
     </ng-template>
   </p-table>
 </p-card>
+
+<!-- Dialog: lista de fechas del paciente -->
+<p-dialog
+  [header]="selectedPaciente ? 'Historiales de ' + selectedPaciente.paciente.nombre + ' ' + selectedPaciente.paciente.apellido : ''"
+  [(visible)]="displayHistorialDialog"
+  [modal]="true"
+  [style]="{width: '500px'}">
+
+  @if (selectedPaciente) {
+    <div class="flex align-items-center gap-2 mb-3">
+      <span class="p-input-icon-left flex-1">
+        <i class="pi pi-calendar"></i>
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="filtroFecha"
+          (ngModelChange)="filtrarPorFecha()"
+          placeholder="Buscar por fecha (dd/mm/aaaa)..."
+          class="w-full" />
+      </span>
+      @if (filtroFecha) {
+        <button pButton icon="pi pi-times" class="p-button-text p-button-secondary"
+          (click)="filtroFecha = ''; filtrarPorFecha()" pTooltip="Limpiar">
+        </button>
+      }
+    </div>
+
+    <p-table
+      [value]="historialesFiltradosPorFecha"
+      styleClass="p-datatable-striped p-datatable-hoverable-rows"
+      [rows]="8"
+      [paginator]="historialesFiltradosPorFecha.length > 8"
+      [rowsPerPageOptions]="[8, 15, 25]">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Fecha Emisión</th>
+          <th>Fecha Cita</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-historial>
+        <tr (click)="verDetalleHistorial(historial)" class="cursor-pointer">
+          <td>{{formatearFecha(historial.fecha_emision)}}</td>
+          <td>{{obtenerFechaCita(historial)}}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="2" class="text-center">No se encontraron historiales para esa fecha</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="displayHistorialDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog: detalle del historial -->
+<p-dialog
+  header="Detalle del Historial"
+  [(visible)]="displayDetalleDialog"
+  [modal]="true"
+  [style]="{width: '520px'}">
+
+  @if (selectedHistorial) {
+    <div class="grid p-3">
+      <div class="col-6 mb-3">
+        <span class="text-500 text-sm block">Fecha Emisión</span>
+        <span class="font-semibold">{{formatearFecha(selectedHistorial.fecha_emision)}}</span>
+      </div>
+      <div class="col-6 mb-3">
+        <span class="text-500 text-sm block">Fecha Cita</span>
+        <span class="font-semibold">{{obtenerFechaCita(selectedHistorial)}}</span>
+      </div>
+      <div class="col-6 mb-3">
+        <span class="text-500 text-sm block">Monto Total</span>
+        <span class="font-semibold text-primary">S/ {{selectedHistorial.monto_total | number:'1.2-2'}}</span>
+      </div>
+      <div class="col-6 mb-3">
+        <span class="text-500 text-sm block">Estado</span>
+        <p-tag [value]="selectedHistorial.estado" [severity]="selectedHistorial.estado === 'Activo' ? 'success' : 'danger'"></p-tag>
+      </div>
+      <div class="col-12 mb-3">
+        <span class="text-500 text-sm block">Diagnóstico</span>
+        <span class="font-semibold">{{selectedHistorial.diagnostico || 'Sin diagnóstico'}}</span>
+      </div>
+      <div class="col-12">
+        <span class="text-500 text-sm block">Notas</span>
+        <span class="font-semibold">{{selectedHistorial.notas || 'Sin notas'}}</span>
+      </div>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="displayDetalleDialog = false"></button>
+  </ng-template>
+</p-dialog>

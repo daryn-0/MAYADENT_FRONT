@@ -33,6 +33,8 @@
     "@angular/ssr": "^20.3.5",
     "@primeuix/themes": "^1.2.5",
     "express": "^5.1.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.2.0",

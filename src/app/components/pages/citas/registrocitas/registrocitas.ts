@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -318,10 +318,10 @@ export class Registrocitas implements OnInit {
   }
 
   formatearFecha(fecha: Date | string): string {
-    const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    if (typeof fecha === 'string') return fecha.split('T')[0];
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
@@ -362,11 +362,11 @@ export class Registrocitas implements OnInit {
   mostrarNotificacionCorreo(tipo: 'registro' | 'confirmacion', emailPaciente: string): void {
     const mensajes = {
       registro: {
-        titulo: '📧 Correo Enviado',
+        titulo: 'ðŸ“§ Correo Enviado',
         mensaje: `Se envió la notificación de nueva cita a: ${emailPaciente}`
       },
       confirmacion: {
-        titulo: '📧 Confirmación Enviada', 
+        titulo: 'ðŸ“§ Confirmación Enviada', 
         mensaje: `Se envió la confirmación de cita a: ${emailPaciente}`
       }
     };
@@ -398,3 +398,6 @@ export class Registrocitas implements OnInit {
     this.messageService.add({ severity, summary, detail });
   }
 }
+
+
+

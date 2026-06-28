@@ -1,17 +1,16 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { HistorialClinico, EstadoHistorialClinico } from '../../../../models/historial_clinico';
+import { TooltipModule } from 'primeng/tooltip';
+import { HistorialClinico } from '../../../../models/historial_clinico';
 import { HistorialClinicoService } from '../../../../services/historial-clinico-service';
 
 @Component({
@@ -26,16 +25,17 @@ import { HistorialClinicoService } from '../../../../services/historial-clinico-
     ButtonModule,
     DialogModule,
     ToastModule,
-    ConfirmDialogModule,
     TagModule,
-    RadioButtonModule
+    TooltipModule
   ],
   templateUrl: './gestionarhistorialclinico.html',
   styleUrl: './gestionarhistorialclinico.css',
-  providers: [MessageService, ConfirmationService]
+  providers: [MessageService]
 })
 export class Gestionarhistorialclinico implements OnInit {
   historiales: HistorialClinico[] = [];
+  historialesFiltrados: HistorialClinico[] = [];
+  filtroPaciente: string = '';
   selectedHistorial: HistorialClinico | null = null;
   historialParaForm: HistorialClinico = new HistorialClinico();
   displayAccionesDialog: boolean = false;
@@ -46,8 +46,7 @@ export class Gestionarhistorialclinico implements OnInit {
 
   constructor(
     private historialClinicoService: HistorialClinicoService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private messageService: MessageService
   ) { }
 
   ngOnInit(): void {
@@ -59,6 +58,7 @@ export class Gestionarhistorialclinico implements OnInit {
     this.historialClinicoService.getHistoriales().subscribe({
       next: (data) => {
         this.historiales = data;
+        this.historialesFiltrados = [...this.historiales];
         this.loading = false;
       },
       error: (error) => {
@@ -69,8 +69,27 @@ export class Gestionarhistorialclinico implements OnInit {
     });
   }
 
+  filtrarPorPaciente(): void {
+    const termino = this.filtroPaciente.toLowerCase().trim();
+    if (!termino) {
+      this.historialesFiltrados = [...this.historiales];
+      return;
+    }
+    this.historialesFiltrados = this.historiales.filter(h => {
+      const paciente = h.paciente || h.cita?.paciente;
+      const nombre = `${paciente?.nombre || ''} ${paciente?.apellido || ''}`.toLowerCase();
+      const dni = (paciente?.dni || '').toLowerCase();
+      return nombre.includes(termino) || dni.includes(termino);
+    });
+  }
+
   onRowSelect(event: any): void {
     this.selectedHistorial = event.data;
+    this.displayAccionesDialog = true;
+  }
+
+  seleccionarHistorial(historial: HistorialClinico): void {
+    this.selectedHistorial = historial;
     this.displayAccionesDialog = true;
   }
 
@@ -105,41 +124,13 @@ export class Gestionarhistorialclinico implements OnInit {
     });
   }
 
-  confirmarCambioEstado(): void {
-    if (!this.selectedHistorial || !this.selectedHistorial.id) return;
-
-    const nuevoEstado: EstadoHistorialClinico = this.selectedHistorial.estado === 'Activo' ? 'Inactivo' : 'Activo';
-    const historialActualizado: HistorialClinico = {
-      ...this.selectedHistorial,
-      estado: nuevoEstado
-    };
-
-    this.confirmationService.confirm({
-      message: `¿Está seguro de cambiar el estado a ${nuevoEstado}?`,
-      header: 'Confirmar Cambio de Estado',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, cambiar',
-      rejectLabel: 'Cancelar',
-      accept: () => {
-        this.historialClinicoService.updateHistorial(this.selectedHistorial!.id!, historialActualizado).subscribe({
-          next: () => {
-            this.showToast('success', 'Actualizado', `Historial ahora está ${nuevoEstado}`);
-            this.displayAccionesDialog = false;
-            this.cargarHistoriales();
-          },
-          error: (error) => {
-            console.error('Error al cambiar estado del historial:', error);
-            this.showToast('error', 'Error', 'No se pudo cambiar el estado del historial');
-          }
-        });
-      }
-    });
-  }
-
   formatearFecha(fecha: Date | string): string {
     if (!fecha) return 'Sin fecha';
-    const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
-    return date.toLocaleDateString('es-PE');
+    if (typeof fecha === 'string') {
+      const [year, month, day] = fecha.split('T')[0].split('-');
+      return `${day}/${month}/${year}`;
+    }
+    return fecha.toLocaleDateString('es-PE');
   }
 
   obtenerPaciente(historial: HistorialClinico): string {
@@ -163,3 +154,4 @@ export class Gestionarhistorialclinico implements OnInit {
     this.messageService.add({ severity, summary, detail });
   }
 }
+

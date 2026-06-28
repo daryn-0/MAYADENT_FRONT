@@ -13,6 +13,7 @@ import { CitasLayout } from './components/layouts/citas-layout/citas-layout';
 import { Registrocitas } from './components/pages/citas/registrocitas/registrocitas';
 import { Listacitas } from './components/pages/citas/listacitas/listacitas';
 import { Gestionarcitas } from './components/pages/citas/gestionarcitas/gestionarcitas';
+import { Pagos } from './components/pages/citas/pagos/pagos';
 import { Listainventario } from './components/pages/inventario/listainventario/listainventario';
 import { Registroinventario } from './components/pages/inventario/registroinventario/registroinventario';
 import { Gestionarinventario } from './components/pages/inventario/gestionarinventario/gestionarinventario';
@@ -61,7 +62,8 @@ export const routes: Routes = [
                     { path: 'registro', component: Registrocitas },
                     { path: 'lista', component: Listacitas },
                     { path: 'gestion', component: Gestionarcitas },
-                    { path: 'calendario', component: Calendariocitas }
+                    { path: 'calendario', component: Calendariocitas },
+                    { path: 'pagos', component: Pagos }
                 ]
             },
             {

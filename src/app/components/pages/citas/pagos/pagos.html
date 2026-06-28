@@ -1,0 +1,64 @@
+<p-toast></p-toast>
+
+<p-card header="Pagos y Comprobantes">
+  <div class="flex align-items-center gap-3 mb-4">
+    <span class="p-input-icon-left flex-1">
+      <i class="pi pi-user"></i>
+      <input pInputText type="text" [(ngModel)]="filtroPaciente" (ngModelChange)="filtrar()"
+        placeholder="Filtrar por paciente o DNI..." class="w-full" />
+    </span>
+    @if (filtroPaciente) {
+      <button pButton icon="pi pi-times" class="p-button-text p-button-secondary"
+        (click)="filtroPaciente = ''; filtrar()" pTooltip="Limpiar"></button>
+    }
+  </div>
+
+  <p-table [value]="facturasFiltradas" [loading]="loading" styleClass="p-datatable-striped"
+    [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,25,50]"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+    [showCurrentPageReport]="true">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>N°</th>
+        <th>Fecha Emisión</th>
+        <th>Paciente</th>
+        <th>DNI</th>
+        <th>Fecha Cita</th>
+        <th class="text-right">Monto Total</th>
+        <th>Método Pago</th>
+        <th>Estado Pago</th>
+        <th class="text-center">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-factura>
+      <tr>
+        <td>{{factura.id}}</td>
+        <td>{{formatearFecha(factura.fecha_emision)}}</td>
+        <td class="font-semibold">{{obtenerPaciente(factura)}}</td>
+        <td>{{factura.cita?.paciente?.dni || '-'}}</td>
+        <td>{{factura.cita?.fecha_cita ? formatearFecha(factura.cita.fecha_cita) : '-'}}</td>
+        <td class="text-right font-semibold text-primary">S/ {{factura.monto_total | number:'1.2-2'}}</td>
+        <td>{{factura.metodoPago?.nombre || '-'}}</td>
+        <td>
+          <p-tag
+            [value]="factura.estadoPago?.nombre || '-'"
+            [severity]="factura.estadoPago?.nombre?.toLowerCase() === 'cancelado' ? 'success' : 'warn'">
+          </p-tag>
+        </td>
+        <td class="text-center">
+          <button pButton icon="pi pi-file-pdf" class="p-button-rounded p-button-danger p-button-text"
+            pTooltip="Descargar PDF" tooltipPosition="top" (click)="generarPDF(factura)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="text-center">No se encontraron registros de pago</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

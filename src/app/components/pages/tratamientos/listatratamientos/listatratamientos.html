@@ -1,4 +1,4 @@
-<div class="card m-4 shadow-2 border-round-lg">
+﻿<div class="card m-4 shadow-2 border-round-lg">
     <p-table 
         #dt 
         [value]="(tratamientos$ | async) || []" 
@@ -29,10 +29,10 @@
 
         <ng-template pTemplate="header">
             <tr>
-                <th pSortableColumn="nombre" style="width:25%">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+                <th style="width:25%">Nombre</th>
                 <th style="width:35%">Descripción</th>
-                <th pSortableColumn="costo_base" style="width:15%">Costo (S/.) <p-sortIcon field="costo_base"></p-sortIcon></th>
-                <th pSortableColumn="doctor.nombre" style="width:25%">Doctor Asignado <p-sortIcon field="doctor.nombre"></p-sortIcon></th>
+                <th style="width:15%">Costo (S/.)</th>
+                <th style="width:25%">Doctor Asignado</th>
             </tr>
         </ng-template>
 
@@ -56,4 +56,5 @@
         </ng-template>
     </p-table>
 </div>
+
 

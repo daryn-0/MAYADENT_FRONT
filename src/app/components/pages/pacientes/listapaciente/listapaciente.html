@@ -1,4 +1,4 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 
 <div class="card m-4">
   <p-table #dt [value]="pacientes" [loading]="loading" styleClass="p-datatable-striped" [paginator]="true" [rows]="10"
@@ -18,11 +18,11 @@
     <!-- Encabezados de la Tabla -->
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="nombre" style="min-width:15rem">
-          Nombre Completo <p-sortIcon field="nombre"></p-sortIcon>
+        <th style="min-width:15rem">
+          Nombre Completo
         </th>
-        <th pSortableColumn="dni">
-          DNI <p-sortIcon field="dni"></p-sortIcon>
+        <th>
+          DNI
         </th>
         <th>Fecha de Nacimiento</th>
         <th>Teléfono</th>

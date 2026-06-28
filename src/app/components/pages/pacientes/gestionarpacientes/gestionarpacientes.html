@@ -1,4 +1,4 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
 
 <!-- 
@@ -100,9 +100,9 @@
       <!-- Columnas de la tabla -->
       <ng-template pTemplate="header">
           <tr>
-              <th pSortableColumn="nombre">Nombre Completo <p-sortIcon field="nombre"></p-sortIcon></th>
-              <th pSortableColumn="dni">DNI <p-sortIcon field="dni"></p-sortIcon></th>
-              <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+              <th>Nombre Completo</th>
+              <th>DNI</th>
+              <th>Estado</th>
           </tr>
       </ng-template>
 
@@ -189,7 +189,7 @@
       <!-- Fecha de Nacimiento -->
       <div class="col-12 md:col-6">
         <p-floatlabel>
-          <p-datepicker [(ngModel)]="pacienteParaEditar.fecha_nacimiento" inputId="edit-fechaNacimiento" name="fechaNacimiento" showIcon iconDisplay="input" [readonlyInput]="true"></p-datepicker>
+          <p-datepicker [(ngModel)]="pacienteParaEditar.fecha_nacimiento" inputId="edit-fechaNacimiento" name="fechaNacimiento" showIcon iconDisplay="input" [readonlyInput]="true" appendTo="body" [maxDate]="fechaMaxima"></p-datepicker>
           <label for="edit-fechaNacimiento">Fecha de Nacimiento</label>
         </p-floatlabel>
       </div>

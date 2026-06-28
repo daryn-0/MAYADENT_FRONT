@@ -1,4 +1,4 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 
 <div class="calendario-container">
   <!-- Contenido principal -->
@@ -59,7 +59,8 @@
           [showIcon]="true"
           placeholder="Ir a fecha"
           (onSelect)="onFechaSeleccionada()"
-          class="selector-fecha">
+          class="selector-fecha"
+          appendTo="body">
         </p-datepicker>
 
         <!-- Selector de vista -->
@@ -69,7 +70,8 @@
           optionLabel="label"
           optionValue="value"
           (onChange)="cambiarVista($event.value)"
-          class="selector-vista">
+          class="selector-vista"
+          appendTo="body">
         </p-select>
 
         <!-- Filtro por estado -->
@@ -80,7 +82,8 @@
           optionValue="value"
           (onChange)="onFiltroEstadoChange()"
           placeholder="Filtrar por estado"
-          class="filtro-estado">
+          class="filtro-estado"
+          appendTo="body">
         </p-select>
 
         <p-select 
@@ -90,7 +93,8 @@
           optionValue="value"
           (onChange)="onFiltroDoctorChange()"
           placeholder="Filtrar por doctor"
-          class="filtro-doctor">
+          class="filtro-doctor"
+          appendTo="body">
         </p-select>
 
         <!-- Botón refrescar -->
@@ -144,7 +148,7 @@
               {{citaDelDia.cita.paciente?.nombre}} {{citaDelDia.cita.paciente?.apellido}}
             </div>
             <div class="paciente-datos">
-              DNI: {{citaDelDia.cita.paciente?.dni}} | 📞 {{citaDelDia.cita.paciente?.telefono}}
+              DNI: {{citaDelDia.cita.paciente?.dni}} | ðŸ“ž {{citaDelDia.cita.paciente?.telefono}}
             </div>
             <div class="paciente-datos">
               Doctor(es): {{obtenerDoctoresDeCita(citaDelDia.cita)}}
@@ -243,8 +247,8 @@
       <div class="col-12 md:col-6">
         <div class="mb-3">
           <strong>Contacto:</strong><br>
-          <span class="text-sm">📞 {{citaSeleccionada.paciente?.telefono}}</span><br>
-          <span class="text-sm">📧 {{citaSeleccionada.paciente?.correo}}</span>
+          <span class="text-sm">ðŸ“ž {{citaSeleccionada.paciente?.telefono}}</span><br>
+          <span class="text-sm">ðŸ“§ {{citaSeleccionada.paciente?.correo}}</span>
         </div>
       </div>
       <div class="col-12" *ngIf="citaSeleccionada.descripcion">

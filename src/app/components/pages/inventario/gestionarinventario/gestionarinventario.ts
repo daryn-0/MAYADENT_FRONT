@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -130,7 +130,7 @@ export class Gestionarinventario implements OnInit {
     };
 
     this.confirmationService.confirm({
-      message: `¿Está seguro de cambiar el estado del item a ${nuevoEstado}?`,
+      message: `Â¿Está seguro de cambiar el estado del item a ${nuevoEstado}?`,
       header: 'Confirmar Cambio de Estado',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, cambiar',
@@ -154,7 +154,7 @@ export class Gestionarinventario implements OnInit {
     const idInventario = this.selectedInventario.id!;
 
     this.confirmationService.confirm({
-      message: '¿Está seguro de ELIMINAR PERMANENTEMENTE este item?',
+      message: 'Â¿Está seguro de ELIMINAR PERMANENTEMENTE este item?',
       header: 'Confirmar Eliminación',
       icon: 'pi pi-trash',
       acceptLabel: 'Sí, eliminar',
@@ -186,10 +186,10 @@ export class Gestionarinventario implements OnInit {
 
   formatearFecha(fecha: Date | string): string {
     if (!fecha) return '';
-    const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    if (typeof fecha === 'string') return fecha.split('T')[0];
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
@@ -222,3 +222,6 @@ export class Gestionarinventario implements OnInit {
     this.messageService.add({ severity, summary, detail });
   }
 }
+
+
+
